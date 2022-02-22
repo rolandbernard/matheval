@@ -1,5 +1,5 @@
 
-use super::{expr::Expr, value::Value};
+use super::{Expr, Value};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum TokenKind {
@@ -49,7 +49,7 @@ impl ExprTokenizer {
         if self.next == None {
             self.next = self.find_next();
         }
-        return std::mem::replace(&mut self.next, None).and_then(|x| Some(x.kind));
+        return self.next.as_ref().and_then(|x| Some(x.kind));
     }
 
     fn find_next(&mut self) -> Option<Token> {
@@ -127,8 +127,6 @@ impl ParseError {
 }
 
 pub fn parse(s: &str) -> Result<Expr, ParseError> {
-    let tokens = ExprTokenizer::on(s);
-    println!("{:?}", tokens.collect::<Vec<_>>());
     let mut tokens = ExprTokenizer::on(s);
     return parse_expr(&mut tokens);
 }
@@ -166,13 +164,16 @@ fn parse_sum(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
 fn parse_product(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
     let mut all = Vec::new();
     all.push(parse_power(tokens)?);
-    while let Some(TokenKind::Operator(c)) = tokens.peek_kind() {
-        if c == '*' {
+    loop {
+        let kind = tokens.peek_kind();
+        if kind == Some(TokenKind::Operator('*')) {
             tokens.next();
             all.push(parse_power(tokens)?);
-        } else if c == '/' {
+        } else if kind == Some(TokenKind::OpenBracket('/')) {
             tokens.next();
             all.push(Expr::reciprocal(parse_power(tokens)?));
+        } else if let Some(TokenKind::Identifier | TokenKind::Literal | TokenKind::OpenBracket(_)) = kind {
+            all.push(parse_power(tokens)?);
         } else {
             break;
         }
@@ -180,7 +181,7 @@ fn parse_product(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
     if all.len() == 1 {
         return Ok(all.pop().unwrap());
     } else {
-        return Ok(Expr::Sum(all));
+        return Ok(Expr::Product(all));
     }
 }
 
@@ -194,7 +195,7 @@ fn parse_power(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
     if all.len() == 1 {
         return Ok(all.pop().unwrap());
     } else {
-        return Ok(Expr::Sum(all));
+        return Ok(Expr::Power(all));
     }
 }
 

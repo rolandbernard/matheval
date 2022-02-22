@@ -1,5 +1,11 @@
 
-use super::value::Value;
+mod value;
+mod evaluate;
+mod simplify;
+mod parse;
+mod format;
+
+pub use value::Value;
 
 #[derive(PartialEq, Debug)]
 pub enum Expr {
@@ -12,12 +18,16 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn negate(some: Expr) -> Expr {
+    fn negate(some: Expr) -> Expr {
         Expr::Product(vec![Expr::Constant(Value::Rational(-1, 1)), some])
     }
 
-    pub fn reciprocal(some: Expr) -> Expr {
+    fn reciprocal(some: Expr) -> Expr {
         Expr::Power(vec![some, Expr::Constant(Value::Rational(-1, 1))])
+    }
+
+    pub fn parse(source: &str) -> Result<Expr, parse::ParseError> {
+        parse::parse(source)
     }
 }
 

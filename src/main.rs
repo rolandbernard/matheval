@@ -1,7 +1,7 @@
 
-use matheval::parse::parse;
+use matheval::Expr;
 
 fn main() {
-    println!("{:?}", parse("5 + 5 * 3 ^ (2 - 1)"));
+    println!("{:?}", Expr::parse("5 + 5 (6 + 7) * 3 ^ (2 - 1)").unwrap());
 }
 

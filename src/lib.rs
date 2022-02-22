@@ -1,7 +1,6 @@
 
-pub mod expr;
-pub mod value;
-pub mod parse;
-pub mod evaluate;
-pub mod simplify;
+mod expr;
+
+pub use expr::Expr;
+pub use expr::Value;
 
