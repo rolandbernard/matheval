@@ -1,2 +1,9 @@
+
+# Editors
+.vim/
+.vscode/
+
+# Rust
 Cargo.lock
 /target
+
