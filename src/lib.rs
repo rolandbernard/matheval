@@ -1,6 +1,7 @@
 
 mod expr;
+mod number;
 
-pub use expr::Expr;
-pub use expr::Value;
+pub use expr::*;
+pub use number::*;
 

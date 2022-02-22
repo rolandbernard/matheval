@@ -6,6 +6,8 @@ mod parser;
 mod format;
 
 pub use value::Value;
+pub use value::EvalError;
+pub use parser::ParseError;
 
 #[derive(PartialEq, Debug)]
 pub enum Expr {

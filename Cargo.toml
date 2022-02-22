@@ -14,3 +14,4 @@ name = "matheval"
 path = "src/main.rs"
 
 [dependencies]
+num = "0.4.0"
