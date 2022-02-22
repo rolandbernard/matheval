@@ -1,12 +1,9 @@
 
-pub mod value;
-pub mod parse;
-pub mod evaluate;
-pub mod simplify;
+use super::value::Value;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum Expr {
-    Constant(value::Value),
+    Constant(Value),
     Sum(Vec<Expr>),
     Product(Vec<Expr>),
     Power(Vec<Expr>),
@@ -16,11 +13,11 @@ pub enum Expr {
 
 impl Expr {
     pub fn negate(some: Expr) -> Expr {
-        Expr::Product(vec![Expr::Constant(value::Value::Rational(-1, 1)), some])
+        Expr::Product(vec![Expr::Constant(Value::Rational(-1, 1)), some])
     }
 
     pub fn reciprocal(some: Expr) -> Expr {
-        Expr::Power(vec![some, Expr::Constant(value::Value::Rational(-1, 1))])
+        Expr::Power(vec![some, Expr::Constant(Value::Rational(-1, 1))])
     }
 }
 

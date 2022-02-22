@@ -1,5 +1,7 @@
 
+use matheval::parse::parse;
+
 fn main() {
-    println!("Hello, world! {}", 0);
+    println!("{:?}", parse("5 + 5 * 3 ^ (2 - 1)"));
 }
 
