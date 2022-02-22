@@ -1,5 +1,5 @@
 
-use super::{Expr, Value};
+use super::Expr;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum TokenKind {
@@ -7,6 +7,7 @@ enum TokenKind {
     Identifier,
     Literal,
     Operator(char),
+    Separator(char),
     OpenBracket(char),
     CloseBracket(char),
 }
@@ -74,10 +75,10 @@ impl ExprTokenizer {
                     }
                 }
                 return Some(Token { kind: TokenKind::Literal, position: start, source: Some(str) });
-            } else if self.source[self.position].is_alphabetic() {
+            } else if self.source[self.position].is_alphabetic() || self.source[self.position] == '_' {
                 let start = self.position;
                 let mut str = String::new();
-                while self.position < self.source.len() && self.source[self.position].is_alphabetic() {
+                while self.position < self.source.len() && (self.source[self.position].is_alphanumeric() || self.source[self.position] == '_') {
                     str.push(self.source[self.position]);
                     self.position += 1;
                 }
@@ -87,15 +88,17 @@ impl ExprTokenizer {
                 self.position += 1;
                 return Some(Token { kind: TokenKind::OpenBracket(c), position: self.position - 1, source: None });
             } else if let ')' | ']' | '}' =  self.source[self.position] {
-                let c = match self.source[self.position] {
-                    ')' => '(', ']' => '[', '}' => '{', _ => panic!(),
-                };
+                let c = self.source[self.position];
                 self.position += 1;
                 return Some(Token { kind: TokenKind::CloseBracket(c), position: self.position - 1, source: None });
             } else if let '+' | '-' | '*' | '/' | '^' =  self.source[self.position] {
                 let c = self.source[self.position];
                 self.position += 1;
                 return Some(Token { kind: TokenKind::Operator(c), position: self.position - 1, source: None });
+            } else if let ',' | ';' =  self.source[self.position] {
+                let c = self.source[self.position];
+                self.position += 1;
+                return Some(Token { kind: TokenKind::Separator(c), position: self.position - 1, source: None });
             } else {
                 self.position += 1;
                 return Some(Token { kind: TokenKind::Unknown, position: self.position - 1, source: None });
@@ -205,46 +208,39 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         return Ok(Expr::negate(parse_base(tokens)?));
     } else if let Some(TokenKind::Identifier) = tokens.peek_kind() {
         let name = tokens.next().unwrap();
-        if let Some(TokenKind::OpenBracket(_)) = tokens.peek_kind() {
-            return Ok(Expr::Function(name.source.unwrap(), Box::new(parse_bracketed(tokens)?)));
+        if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
+            tokens.next();
+            let mut args = Vec::new();
+            args.push(parse_sum(tokens)?);
+            while let Some(TokenKind::Separator(',')) = tokens.peek_kind() {
+                tokens.next();
+                args.push(parse_sum(tokens)?);
+            }
+            let closing = tokens.next();
+            if let Some(Token { kind: TokenKind::CloseBracket(')'), .. }) = closing {
+                return Ok(Expr::Function(name.source.unwrap(), args));
+            } else {
+                return Err(ParseError::from(
+                    &closing.unwrap_or(tokens.empty()),
+                    "Expected matching closing bracket for function arguments"
+                ));
+            }
         } else {
             return Ok(Expr::Variable(name.source.unwrap()));
         }
-    } else if let Some(TokenKind::OpenBracket(_)) = tokens.peek_kind() {
-        return parse_bracketed(tokens);
-    } else if let Some(TokenKind::Literal) = tokens.peek_kind() {
-        let mut num = 0;
-        let mut den = 1;
-        let mut dec = false;
-        for c in tokens.next().unwrap().source.unwrap().chars() {
-            if c == '.' {
-                dec = true;
-            } else {
-                num *= 10;
-                num += c.to_digit(10).unwrap() as i64;
-                if dec {
-                    den *= 10;
-                }
-            }
-        }
-        return Ok(Expr::Constant(Value::Rational(num, den)));
-    } else {
-        return Err(ParseError::from(&tokens.next().unwrap_or(tokens.empty()), "Expected an expression"));
-    }
-}
-
-fn parse_bracketed(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    if let Some(Token { kind: TokenKind::OpenBracket(o), .. }) = tokens.next() {
+    } else if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
+        tokens.next();
         let expr = parse_sum(tokens)?;
         let closing = tokens.next();
-        if let Some(Token { kind: TokenKind::CloseBracket(c), .. }) = closing {
-            if o == c {
-                return Ok(expr);
-            }
+        if let Some(Token { kind: TokenKind::CloseBracket(')'), .. }) = closing {
+            return Ok(expr);
+        } else {
+            return Err(ParseError::from(&closing.unwrap_or(tokens.empty()), "Expected matching closing bracket"));
         }
-        return Err(ParseError::from(&closing.unwrap_or(tokens.empty()), "Expected matching closing bracket"));
+    } else if let Some(TokenKind::Literal) = tokens.peek_kind() {
+        return Ok(Expr::Constant(tokens.next().unwrap().source.unwrap()));
     } else {
-        panic!();
+        return Err(ParseError::from(&tokens.next().unwrap_or(tokens.empty()), "Expected an expression"));
     }
 }
 
