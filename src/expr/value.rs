@@ -12,10 +12,7 @@ where Self: Sized + ToString {
     fn pow(&self, o: &Self) -> Result<Self, EvalError>;
 }
 
-pub struct ContextFn<V: Value> {
-    pub argc: usize,
-    pub func: Box<dyn Fn(&[V]) -> Result<V, EvalError>>,
-}
+pub type ContextFn<V> = Box<dyn Fn(&[V]) -> Result<V, EvalError>>;
 
 pub trait Context<V: Value> {
     fn set_variable(&mut self, name: &str, value: V);

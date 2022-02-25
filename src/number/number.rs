@@ -19,6 +19,33 @@ impl Number {
             Number::Float(f) => *f,
         }
     }
+
+    pub fn is_zero(&self) -> bool {
+        match self {
+            Number::Rational(r) => r.is_zero(),
+            Number::Float(f) => f.is_zero(),
+        }
+    }
+}
+
+impl PartialEq for Number {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Float(l), Self::Float(r)) => l == r,
+            (Self::Rational(l), Self::Rational(r)) => l == r,
+            (l, r) => l.to_f64() == r.to_f64(),
+        }
+    }
+}
+
+impl PartialOrd for Number {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            (Self::Float(l), Self::Float(r)) => l.partial_cmp(r),
+            (Self::Rational(l), Self::Rational(r)) => l.partial_cmp(r),
+            (l, r) => l.to_f64().partial_cmp(&r.to_f64()),
+        }
+    }
 }
 
 impl ToString for Number {

@@ -7,6 +7,7 @@ pub enum EvalError {
     MathError(String),
     InvalidLiteral(String),
     NotSupported(String),
+    ArgumentMismatch(String),
 }
 
 pub fn evaluate<V: Value>(expr: &Expr) -> Result<V, EvalError> {
