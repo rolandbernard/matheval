@@ -31,5 +31,9 @@ impl Expr {
     pub fn parse(source: &str) -> Result<Expr, parser::ParseError> {
         parser::parse(source)
     }
+
+    pub fn eval<V: Value>(&self) -> Result<V, value::EvalError> {
+        evaluate::evaluate::<V>(self)
+    }
 }
 

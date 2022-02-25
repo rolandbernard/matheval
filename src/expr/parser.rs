@@ -172,7 +172,7 @@ fn parse_product(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         if kind == Some(TokenKind::Operator('*')) {
             tokens.next();
             all.push(parse_power(tokens)?);
-        } else if kind == Some(TokenKind::OpenBracket('/')) {
+        } else if kind == Some(TokenKind::Operator('/')) {
             tokens.next();
             all.push(Expr::reciprocal(parse_power(tokens)?));
         } else if let Some(TokenKind::Identifier | TokenKind::Literal | TokenKind::OpenBracket(_)) = kind {
