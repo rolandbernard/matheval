@@ -6,7 +6,9 @@ mod parser;
 mod format;
 
 pub use value::Value;
-pub use value::EvalError;
+pub use value::Context;
+pub use value::ContextFn;
+pub use evaluate::EvalError;
 pub use parser::ParseError;
 
 #[derive(PartialEq, Debug)]
@@ -28,11 +30,11 @@ impl Expr {
         Expr::Power(vec![some, Expr::Constant("-1".to_owned())])
     }
 
-    pub fn parse(source: &str) -> Result<Expr, parser::ParseError> {
+    pub fn parse(source: &str) -> Result<Expr, ParseError> {
         parser::parse(source)
     }
 
-    pub fn eval<V: Value>(&self) -> Result<V, value::EvalError> {
+    pub fn eval<V: Value>(&self) -> Result<V, EvalError> {
         evaluate::evaluate::<V>(self)
     }
 }

@@ -3,8 +3,8 @@ use std::ops::*;
 use num::*;
 use num::traits::Pow;
 
-use super::Value;
-use super::EvalError;
+use crate::Value;
+use crate::EvalError;
 
 #[derive(Debug, Clone)]
 pub enum Number {
@@ -13,7 +13,7 @@ pub enum Number {
 }
 
 impl Number {
-    fn to_f64(&self) -> f64 {
+    pub fn to_f64(&self) -> f64 {
         match self {
             Number::Rational(r) => r.to_f64().unwrap_or(f64::NAN),
             Number::Float(f) => *f,
@@ -62,24 +62,24 @@ impl Value for Number {
         return Ok(Number::Rational(BigRational::new(num, den)));
     }
 
-    fn add(self, o: Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (&self, &o) {
+    fn add(&self, o: &Self) -> Result<Self, EvalError> {
+        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
             return Ok(Number::Rational(a.add(b)));
         } else {
             return Ok(Number::Float(self.to_f64() + o.to_f64()));
         }
     }
 
-    fn mul(self, o: Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (&self, &o) {
+    fn mul(&self, o: &Self) -> Result<Self, EvalError> {
+        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
             return Ok(Number::Rational(a.mul(b)));
         } else {
             return Ok(Number::Float(self.to_f64() * o.to_f64()));
         }
     }
 
-    fn pow(self, o: Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (&self, &o) {
+    fn pow(&self, o: &Self) -> Result<Self, EvalError> {
+        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
             if b.is_integer() {
                 if let Some(i) = b.to_i32() {
                     return Ok(Number::Rational(a.pow(i)));
