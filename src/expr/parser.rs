@@ -62,27 +62,28 @@ impl ExprTokenizer {
         } else {
             if self.source[self.position].is_digit(10) {
                 let start = self.position;
-                let mut str = String::new();
                 while self.position < self.source.len() && self.source[self.position].is_digit(10) {
-                    str.push(self.source[self.position]);
                     self.position += 1;
                 }
                 if self.position < self.source.len() && self.source[self.position] == '.' {
                     self.position += 1;
                     while self.position < self.source.len() && self.source[self.position].is_digit(10) {
-                        str.push(self.source[self.position]);
                         self.position += 1;
                     }
                 }
-                return Some(Token { kind: TokenKind::Literal, position: start, source: Some(str) });
+                return Some(Token {
+                    kind: TokenKind::Literal, position: start,
+                    source: Some(self.source[start..self.position].iter().collect::<String>())
+                });
             } else if self.source[self.position].is_alphabetic() || self.source[self.position] == '_' {
                 let start = self.position;
-                let mut str = String::new();
                 while self.position < self.source.len() && (self.source[self.position].is_alphanumeric() || self.source[self.position] == '_') {
-                    str.push(self.source[self.position]);
                     self.position += 1;
                 }
-                return Some(Token { kind: TokenKind::Identifier, position: start, source: Some(str) });
+                return Some(Token {
+                    kind: TokenKind::Identifier, position: start,
+                    source: Some(self.source[start..self.position].iter().collect::<String>())
+                });
             } else if let '(' | '[' | '{' =  self.source[self.position] {
                 let c = self.source[self.position];
                 self.position += 1;
@@ -207,7 +208,10 @@ fn parse_power(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
 }
 
 fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    if let Some(TokenKind::Operator('-')) = tokens.peek_kind() {
+    if let Some(TokenKind::Operator('+')) = tokens.peek_kind() {
+        tokens.next();
+        return parse_base(tokens);
+    } else if let Some(TokenKind::Operator('-')) = tokens.peek_kind() {
         tokens.next();
         return Ok(Expr::negate(parse_base(tokens)?));
     } else if let Some(TokenKind::Identifier) = tokens.peek_kind() {

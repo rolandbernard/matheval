@@ -3,7 +3,7 @@ use super::EvalError;
 
 pub trait Value
 where Self: Sized + ToString {
-    fn read_from(s: &str) -> Result<Self, EvalError>;
+    fn parse_from(s: &str) -> Result<Self, EvalError>;
 
     fn add(&self, o: &Self) -> Result<Self, EvalError>;
 

@@ -12,7 +12,7 @@ pub enum EvalError {
 
 pub fn evaluate<V: Value>(expr: &Expr) -> Result<V, EvalError> {
     match expr {
-        Expr::Constant(s) => V::read_from(&s),
+        Expr::Constant(s) => V::parse_from(&s),
         Expr::Sum(args) => {
             let mut sum = evaluate::<V>(&args[0])?;
             for i in 1..args.len() {

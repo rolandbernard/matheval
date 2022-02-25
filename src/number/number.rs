@@ -58,7 +58,7 @@ impl ToString for Number {
 }
 
 impl Value for Number {
-    fn read_from(s: &str) -> Result<Self, EvalError> {
+    fn parse_from(s: &str) -> Result<Self, EvalError> {
         let mut num = BigInt::zero();
         let mut den = BigInt::one();
         let mut dot = false;
