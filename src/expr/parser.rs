@@ -54,55 +54,70 @@ impl ExprTokenizer {
     }
 
     fn find_next(&mut self) -> Option<Token> {
-        while self.position < self.source.len() && self.source[self.position].is_whitespace() {
-            self.position += 1;
+        let source = &self.source;
+        let pos = &mut self.position;
+        while *pos < source.len() && source[*pos].is_whitespace() {
+            *pos += 1;
         }
-        if self.position == self.source.len() {
+        if *pos == source.len() {
             return None;
         } else {
-            if self.source[self.position].is_digit(10) {
-                let start = self.position;
-                while self.position < self.source.len() && self.source[self.position].is_digit(10) {
-                    self.position += 1;
+            if source[*pos].is_digit(10) {
+                let start = *pos;
+                let base;
+                if *pos + 2 < source.len() && source[*pos + 1] == 'b' && source[*pos + 2].is_digit(2) {
+                    *pos += 2;
+                    base = 2;
+                } else if *pos + 2 < source.len() && source[*pos + 1] == 'o' && source[*pos + 2].is_digit(8) {
+                    *pos += 2;
+                    base = 8;
+                } else if *pos + 2 < source.len() && source[*pos + 1] == 'x' && source[*pos + 2].is_digit(16) {
+                    *pos += 2;
+                    base = 16;
+                } else {
+                    base = 10;
                 }
-                if self.position < self.source.len() && self.source[self.position] == '.' {
-                    self.position += 1;
-                    while self.position < self.source.len() && self.source[self.position].is_digit(10) {
-                        self.position += 1;
+                while *pos < source.len() && source[*pos].is_digit(base) {
+                    *pos += 1;
+                }
+                if *pos < source.len() && source[*pos] == '.' {
+                    *pos += 1;
+                    while *pos < source.len() && source[*pos].is_digit(base) {
+                        *pos += 1;
                     }
                 }
                 return Some(Token {
                     kind: TokenKind::Literal, position: start,
-                    source: Some(self.source[start..self.position].iter().collect::<String>())
+                    source: Some(source[start..*pos].iter().collect::<String>())
                 });
-            } else if self.source[self.position].is_alphabetic() || self.source[self.position] == '_' {
-                let start = self.position;
-                while self.position < self.source.len() && (self.source[self.position].is_alphanumeric() || self.source[self.position] == '_') {
-                    self.position += 1;
+            } else if source[*pos].is_alphabetic() || source[*pos] == '_' {
+                let start = *pos;
+                while *pos < source.len() && (source[*pos].is_alphanumeric() || source[*pos] == '_') {
+                    *pos += 1;
                 }
                 return Some(Token {
                     kind: TokenKind::Identifier, position: start,
-                    source: Some(self.source[start..self.position].iter().collect::<String>())
+                    source: Some(source[start..*pos].iter().collect::<String>())
                 });
-            } else if let '(' | '[' | '{' =  self.source[self.position] {
-                let c = self.source[self.position];
-                self.position += 1;
-                return Some(Token { kind: TokenKind::OpenBracket(c), position: self.position - 1, source: None });
-            } else if let ')' | ']' | '}' =  self.source[self.position] {
-                let c = self.source[self.position];
-                self.position += 1;
-                return Some(Token { kind: TokenKind::CloseBracket(c), position: self.position - 1, source: None });
-            } else if let '+' | '-' | '*' | '/' | '^' =  self.source[self.position] {
-                let c = self.source[self.position];
-                self.position += 1;
-                return Some(Token { kind: TokenKind::Operator(c), position: self.position - 1, source: None });
-            } else if let ',' | ';' =  self.source[self.position] {
-                let c = self.source[self.position];
-                self.position += 1;
-                return Some(Token { kind: TokenKind::Separator(c), position: self.position - 1, source: None });
+            } else if let '(' | '[' | '{' =  source[*pos] {
+                let c = source[*pos];
+                *pos += 1;
+                return Some(Token { kind: TokenKind::OpenBracket(c), position: *pos - 1, source: None });
+            } else if let ')' | ']' | '}' =  source[*pos] {
+                let c = source[*pos];
+                *pos += 1;
+                return Some(Token { kind: TokenKind::CloseBracket(c), position: *pos - 1, source: None });
+            } else if let '+' | '-' | '*' | '/' | '^' =  source[*pos] {
+                let c = source[*pos];
+                *pos += 1;
+                return Some(Token { kind: TokenKind::Operator(c), position: *pos - 1, source: None });
+            } else if let ',' | ';' =  source[*pos] {
+                let c = source[*pos];
+                *pos += 1;
+                return Some(Token { kind: TokenKind::Separator(c), position: *pos - 1, source: None });
             } else {
-                self.position += 1;
-                return Some(Token { kind: TokenKind::Unknown, position: self.position - 1, source: None });
+                *pos += 1;
+                return Some(Token { kind: TokenKind::Unknown, position: *pos - 1, source: None });
             }
         }
     }
