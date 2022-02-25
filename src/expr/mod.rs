@@ -11,6 +11,8 @@ pub use value::ContextFn;
 pub use evaluate::EvalError;
 pub use parser::ParseError;
 
+use self::value::EmptyContext;
+
 #[derive(PartialEq, Debug)]
 pub enum Expr {
     Constant(String),
@@ -35,7 +37,11 @@ impl Expr {
     }
 
     pub fn eval<V: Value>(&self) -> Result<V, EvalError> {
-        evaluate::evaluate::<V>(self)
+        evaluate::evaluate::<V, EmptyContext>(self, &EmptyContext::new())
+    }
+
+    pub fn eval_in<V: Value, C: Context<V>>(&self, c: &C) -> Result<V, EvalError> {
+        evaluate::evaluate::<V, C>(self, c)
     }
 }
 
