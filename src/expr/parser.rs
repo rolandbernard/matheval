@@ -131,16 +131,20 @@ impl ParseError {
 
 pub fn parse(s: &str) -> Result<Expr, ParseError> {
     let mut tokens = ExprTokenizer::on(s);
-    return parse_expr(&mut tokens);
+    return parse_root(&mut tokens);
 }
 
-fn parse_expr(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    let expr = parse_sum(tokens)?;
+fn parse_root(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
+    let expr = parse_expr(tokens)?;
     if let Some(t) = tokens.next() {
         return Err(ParseError::from(&t, "Expected the end of input"));
     } else {
         return Ok(expr);
     }
+}
+
+fn parse_expr(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
+    parse_sum(tokens)
 }
 
 fn parse_sum(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
@@ -211,10 +215,10 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
             tokens.next();
             let mut args = Vec::new();
-            args.push(parse_sum(tokens)?);
+            args.push(parse_expr(tokens)?);
             while let Some(TokenKind::Separator(',')) = tokens.peek_kind() {
                 tokens.next();
-                args.push(parse_sum(tokens)?);
+                args.push(parse_expr(tokens)?);
             }
             let closing = tokens.next();
             if let Some(Token { kind: TokenKind::CloseBracket(')'), .. }) = closing {
@@ -230,7 +234,7 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         }
     } else if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
         tokens.next();
-        let expr = parse_sum(tokens)?;
+        let expr = parse_expr(tokens)?;
         let closing = tokens.next();
         if let Some(Token { kind: TokenKind::CloseBracket(')'), .. }) = closing {
             return Ok(expr);
