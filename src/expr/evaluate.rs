@@ -15,28 +15,27 @@ pub enum EvalError {
 
 pub fn evaluate<V: Value, C: Context<V>>(expr: &Expr, cnxt: &C) -> Result<V, EvalError> {
     match expr {
-        Expr::Constant(s) => V::parse_from(&s),
-        Expr::Sum(args) => {
-            let mut sum = evaluate::<V, C>(&args[0], cnxt)?;
-            for i in 1..args.len() {
-                sum = sum.add(&evaluate::<V, C>(&args[i], cnxt)?)?;
-            }
-            return Ok(sum);
+        Expr::Literal(s) => V::parse_from(&s),
+        Expr::Add(r, l) => {
+            evaluate::<V, C>(l, cnxt)?.add(&evaluate::<V, C>(r, cnxt)?)
         },
-        Expr::Product(args) => {
-            let mut product = evaluate::<V, C>(&args[0], cnxt)?;
-            for i in 1..args.len() {
-                product = product.mul(&evaluate::<V, C>(&args[i], cnxt)?)?;
-            }
-            return Ok(product);
+        Expr::Sub(r, l) => {
+            todo!()
+            // evaluate::<V, C>(l, cnxt)?.sub(&evaluate::<V, C>(r, cnxt)?)
         },
-        Expr::Power(args) => {
-            let len = args.len();
-            let mut pow = evaluate::<V, C>(&args[len - 1], cnxt)?;
-            for i in (0..args.len() - 1).rev() {
-                pow = evaluate::<V, C>(&args[i], cnxt)?.pow(&pow)?;
-            }
-            return Ok(pow);
+        Expr::Mul(r, l) => {
+            evaluate::<V, C>(l, cnxt)?.mul(&evaluate::<V, C>(r, cnxt)?)
+        },
+        Expr::Div(r, l) => {
+            todo!()
+            // evaluate::<V, C>(l, cnxt)?.div(&evaluate::<V, C>(r, cnxt)?)
+        },
+        Expr::Neg(o) => {
+            todo!()
+            // evaluate::<V, C>(o, cnxt)?.neg()
+        },
+        Expr::Pow(r, l) => {
+            evaluate::<V, C>(l, cnxt)?.pow(&evaluate::<V, C>(r, cnxt)?)
         },
         Expr::Function(name, args) => {
             let mut argn = Vec::new();
@@ -44,16 +43,16 @@ pub fn evaluate<V: Value, C: Context<V>>(expr: &Expr, cnxt: &C) -> Result<V, Eva
                 argn.push(evaluate::<V, C>(a, cnxt)?);
             }
             if let Some(f) = cnxt.get_function(name) {
-                return f(&argn);
+                f(&argn)
             } else {
-                return Err(EvalError::UnknownFunction("Function not found".to_owned()));
+                Err(EvalError::UnknownFunction("Function not found".to_owned()))
             }
         },
         Expr::Variable(name) => {
             if let Some(v) = cnxt.get_variable(name) {
-                return Ok(v);
+                Ok(v)
             } else {
-                return Err(EvalError::UnknownVariable("Variable not found".to_owned()));
+                Err(EvalError::UnknownVariable("Variable not found".to_owned()))
             }
         },
     }

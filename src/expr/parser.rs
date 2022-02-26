@@ -175,62 +175,47 @@ fn parse_expr(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
 }
 
 fn parse_sum(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    let mut all = Vec::new();
-    all.push(parse_product(tokens)?);
+    let mut sum = parse_product(tokens)?;
     while let Some(TokenKind::Operator(c)) = tokens.peek_kind() {
         if c == '+' {
             tokens.next();
-            all.push(parse_product(tokens)?);
+            sum = Expr::Add(Box::new(sum), Box::new(parse_product(tokens)?));
         } else if c == '-' {
             tokens.next();
-            all.push(Expr::negate(parse_product(tokens)?));
+            sum = Expr::Sub(Box::new(sum), Box::new(parse_product(tokens)?));
         } else {
             break;
         }
     }
-    if all.len() == 1 {
-        return Ok(all.pop().unwrap());
-    } else {
-        return Ok(Expr::Sum(all));
-    }
+    return Ok(sum);
 }
 
 fn parse_product(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    let mut all = Vec::new();
-    all.push(parse_power(tokens)?);
+    let mut prod = parse_power(tokens)?;
     loop {
         let kind = tokens.peek_kind();
         if kind == Some(TokenKind::Operator('*')) {
             tokens.next();
-            all.push(parse_power(tokens)?);
+            prod = Expr::Mul(Box::new(prod), Box::new(parse_power(tokens)?));
         } else if kind == Some(TokenKind::Operator('/')) {
             tokens.next();
-            all.push(Expr::reciprocal(parse_power(tokens)?));
+            prod = Expr::Div(Box::new(prod), Box::new(parse_power(tokens)?));
         } else if let Some(TokenKind::Identifier | TokenKind::Literal | TokenKind::OpenBracket(_)) = kind {
-            all.push(parse_power(tokens)?);
+            prod = Expr::Mul(Box::new(prod), Box::new(parse_power(tokens)?));
         } else {
             break;
         }
     }
-    if all.len() == 1 {
-        return Ok(all.pop().unwrap());
-    } else {
-        return Ok(Expr::Product(all));
-    }
+    return Ok(prod);
 }
 
 fn parse_power(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
-    let mut all = Vec::new();
-    all.push(parse_base(tokens)?);
+    let mut pow = parse_base(tokens)?;
     while let Some(TokenKind::Operator('^')) = tokens.peek_kind() {
         tokens.next();
-        all.push(parse_base(tokens)?);
+        pow = Expr::Pow(Box::new(pow), Box::new(parse_base(tokens)?));
     }
-    if all.len() == 1 {
-        return Ok(all.pop().unwrap());
-    } else {
-        return Ok(Expr::Power(all));
-    }
+    return Ok(pow);
 }
 
 fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
@@ -239,7 +224,7 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         return parse_base(tokens);
     } else if let Some(TokenKind::Operator('-')) = tokens.peek_kind() {
         tokens.next();
-        return Ok(Expr::negate(parse_base(tokens)?));
+        return Ok(Expr::Neg(Box::new(parse_base(tokens)?)));
     } else if let Some(TokenKind::Identifier) = tokens.peek_kind() {
         let name = tokens.next().unwrap();
         if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
@@ -272,7 +257,7 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
             return Err(ParseError::from(&closing.unwrap_or(tokens.empty()), "Expected matching closing bracket"));
         }
     } else if let Some(TokenKind::Literal) = tokens.peek_kind() {
-        return Ok(Expr::Constant(tokens.next().unwrap().source.unwrap()));
+        return Ok(Expr::Literal(tokens.next().unwrap().source.unwrap()));
     } else {
         return Err(ParseError::from(&tokens.next().unwrap_or(tokens.empty()), "Expected an expression"));
     }
