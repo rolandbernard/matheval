@@ -66,14 +66,21 @@ impl ToString for Number {
 
 impl Value for Number {
     fn parse_from(s: &str) -> Result<Self, EvalError> {
+        #[derive(PartialEq)]
+        enum Phase {
+            Int, Frac, Exp
+        }
+        let mut phase = Phase::Int;
         let mut num = BigInt::zero();
         let mut den = BigInt::one();
-        let mut dot = false;
+        let mut exp = BigUint::zero();
+        let mut next_exp = false;
         let mut base = 10;
+        let mut start = 0;
         for (i, c) in s.chars().enumerate() {
             match c {
                 'b' | 'o' | 'x' => {
-                    if !num.is_zero() || dot || base != 10 {
+                    if !num.is_zero() || phase != Phase::Int || base != 10 {
                         return Err(EvalError::InvalidLiteral("Radix indication character after non-zero characters".to_owned()));
                     } else if c == 'b' {
                         base = 2;
@@ -84,30 +91,57 @@ impl Value for Number {
                     }
                 },
                 '-' | '+' => {
-                    if i != 0 {
+                    if i != start {
                         return Err(EvalError::InvalidLiteral("'-' or '+' characters not at beginning".to_owned()));
                     } else if c == '-' {
-                        den = -den;
+                        if phase == Phase::Int {
+                            den = -den;
+                        } else {
+                            next_exp = true;
+                        }
                     }
                 },
                 '.' => {
-                    if dot {
-                        return Err(EvalError::InvalidLiteral("Multiple '.' characters".to_owned()));
-                    }
-                    dot = true;
-                },
-                _ => {
-                    if dot {
-                        den *= base;
-                    }
-                    num *= base;
-                    if let Some(d) = c.to_digit(base) {
-                        num += d;
+                    if phase != Phase::Int {
+                        return Err(EvalError::InvalidLiteral("Unexpected '.' characters".to_owned()));
                     } else {
-                        return Err(EvalError::InvalidLiteral("Literal contains non-digit characters".to_owned()));
+                        phase = Phase::Frac;
+                    }
+                },
+                'e' => {
+                    if phase == Phase::Exp {
+                        return Err(EvalError::InvalidLiteral("Unexpected 'e' characters".to_owned()));
+                    } else {
+                        phase = Phase::Exp;
+                        start = i + 1;
+                    }
+                }
+                _ => {
+                    if phase == Phase::Exp {
+                        exp *= base;
+                        if let Some(d) = c.to_digit(base) {
+                            exp += d;
+                        } else {
+                            return Err(EvalError::InvalidLiteral("Literal contains non-digit characters".to_owned()));
+                        }
+                    } else {
+                        if phase == Phase::Frac {
+                            den *= base;
+                        }
+                        num *= base;
+                        if let Some(d) = c.to_digit(base) {
+                            num += d;
+                        } else {
+                            return Err(EvalError::InvalidLiteral("Literal contains non-digit characters".to_owned()));
+                        }
                     }
                 },
             }
+        }
+        if next_exp {
+            den *= BigInt::from_u32(base).unwrap().pow(exp);
+        } else {
+            num *= BigInt::from_u32(base).unwrap().pow(exp);
         }
         return Ok(Number::Rational(BigRational::new(num, den)));
     }

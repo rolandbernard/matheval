@@ -75,13 +75,24 @@ impl ExprTokenizer {
                     *pos += 2;
                     base = 16;
                 } else {
+                    *pos += 1;
                     base = 10;
                 }
                 while *pos < source.len() && source[*pos].is_digit(base) {
                     *pos += 1;
                 }
-                if *pos < source.len() && source[*pos] == '.' {
-                    *pos += 1;
+                if *pos + 1 < source.len() && source[*pos] == '.' && source[*pos + 1].is_digit(base) {
+                    *pos += 2;
+                    while *pos < source.len() && source[*pos].is_digit(base) {
+                        *pos += 1;
+                    }
+                }
+                if *pos < source.len() && source[*pos] == 'e' {
+                    if *pos + 1 < source.len() && source[*pos + 1].is_digit(base) {
+                        *pos += 2;
+                    } else if *pos + 2 < source.len() && (source[*pos + 1] == '+' || source[*pos + 1] == '-') && source[*pos + 2].is_digit(base) {
+                        *pos += 3;
+                    }
                     while *pos < source.len() && source[*pos].is_digit(base) {
                         *pos += 1;
                     }

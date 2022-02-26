@@ -5,10 +5,10 @@ use matheval::NumberContext;
 use matheval::Value;
 
 fn main() {
-    let expr = Expr::parse("0b1.1").unwrap();
+    let expr = Expr::parse("1.1e+1").unwrap();
     println!("{:?}", expr);
     let res = expr.eval_in(&NumberContext::new()).unwrap();
     println!("{:?}", res);
-    println!("{:?}", Number::parse_from("0.2"));
+    println!("{:?}", Number::parse_from("0b1e11"));
 }
 
