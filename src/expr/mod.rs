@@ -28,3 +28,9 @@ impl Expr {
     }
 }
 
+impl ToString for Expr {
+    fn to_string(&self) -> String {
+        format::format(self)
+    }
+}
+
