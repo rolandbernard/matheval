@@ -7,6 +7,8 @@ use num::traits::Pow;
 use crate::Value;
 use crate::EvalError;
 
+use super::NumberContext;
+
 #[derive(Debug, Clone)]
 pub enum Number {
     Rational(BigRational),
@@ -27,7 +29,21 @@ impl Number {
             Number::Float(f) => BigRational::from_f64(*f).unwrap(),
         }
     }
-    
+
+    pub fn is_rational(&self) -> bool {
+        match self {
+            Number::Rational(..) => true,
+            Number::Float(..) => false,
+        }
+    }
+
+    pub fn is_integer(&self) -> bool {
+        match self {
+            Number::Rational(r) => r.is_integer(),
+            Number::Float(..) => false,
+        }
+    }
+
     pub fn is_zero(&self) -> bool {
         match self {
             Number::Rational(r) => r.is_zero(),
@@ -222,5 +238,11 @@ impl Pow<Number> for Number {
     }
 }
 
-impl Value for Number { }
+impl Value for Number {
+    type DefaultContext = NumberContext;
+
+    fn default_context() -> Self::DefaultContext {
+        NumberContext::new()
+    }
+}
 

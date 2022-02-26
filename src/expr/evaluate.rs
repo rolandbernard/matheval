@@ -13,6 +13,19 @@ pub enum EvalError {
     UnknownFunction(String),
 }
 
+impl ToString for EvalError {
+    fn to_string(&self) -> String {
+        match self {
+            EvalError::MathError(s) => format!("Math error: {}", s),
+            EvalError::InvalidLiteral(s) => format!("Invalid literal: {}", s),
+            EvalError::NotSupported(s) => format!("Not supported: {}", s),
+            EvalError::ArgumentMismatch(s) => format!("Argument mismatch: {}", s),
+            EvalError::UnknownVariable(s) => format!("Unknown variable: {}", s),
+            EvalError::UnknownFunction(s) => format!("Unknown function: {}", s),
+        }
+    }
+}
+
 pub fn evaluate<V: Value, C: Context<V>>(expr: &Expr, cnxt: &C) -> Result<V, EvalError> {
     match expr {
         Expr::Literal(s) => s.parse(),

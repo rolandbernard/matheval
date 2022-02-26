@@ -146,13 +146,19 @@ impl ExprTokenizer {
 
 #[derive(Debug)]
 pub struct ParseError {
-    pub message: String,
-    pub position: usize,
+    message: String,
+    position: usize,
 }
 
 impl ParseError {
     fn from(tok: &Token, msg: &str) -> ParseError {
         return ParseError { message: msg.to_owned(), position: tok.position };
+    }
+}
+
+impl ToString for ParseError {
+    fn to_string(&self) -> String {
+        format!("Error at position {}: {}", self.position, self.message)
     }
 }
 

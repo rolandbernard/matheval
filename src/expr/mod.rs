@@ -12,15 +12,13 @@ pub use value::ContextFn;
 pub use evaluate::EvalError;
 pub use parser::ParseError;
 
-use self::value::EmptyContext;
-
 impl Expr {
     pub fn parse(source: &str) -> Result<Expr, ParseError> {
         parser::parse(source)
     }
 
     pub fn eval<V: Value>(&self) -> Result<V, EvalError> {
-        evaluate::evaluate::<V, EmptyContext>(self, &EmptyContext::new())
+        self.eval_in::<V, V::DefaultContext>(&V::default_context())
     }
 
     pub fn eval_in<V: Value, C: Context<V>>(&self, c: &C) -> Result<V, EvalError> {
