@@ -211,9 +211,9 @@ fn parse_product(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
 
 fn parse_power(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
     let mut pow = parse_base(tokens)?;
-    while let Some(TokenKind::Operator('^')) = tokens.peek_kind() {
+    if let Some(TokenKind::Operator('^')) = tokens.peek_kind() {
         tokens.next();
-        pow = Expr::Pow(Box::new(pow), Box::new(parse_base(tokens)?));
+        pow = Expr::Pow(Box::new(pow), Box::new(parse_power(tokens)?));
     }
     return Ok(pow);
 }
