@@ -40,7 +40,21 @@ impl Number {
     pub fn is_integer(&self) -> bool {
         match self {
             Number::Rational(r) => r.is_integer(),
-            Number::Float(..) => false,
+            Number::Float(f) => *f == f.trunc(),
+        }
+    }
+
+    pub fn is_positive(&self) -> bool {
+        match self {
+            Number::Rational(r) => r.is_positive(),
+            Number::Float(f) => *f > 0.0,
+        }
+    }
+
+    pub fn is_negative(&self) -> bool {
+        match self {
+            Number::Rational(r) => r.is_negative(),
+            Number::Float(f) => *f < 0.0,
         }
     }
 
@@ -214,9 +228,13 @@ impl Div for Number {
     type Output = Result<Number, EvalError>;
 
     fn div(self, rhs: Self) -> Self::Output {
-        match (self, rhs) {
-            (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.div(b))),
-            (a, b) => Ok(Number::Float(a.to_f64().div(b.to_f64()))),
+        if rhs.is_zero() {
+            Err(EvalError::MathError("Division by zero".to_owned()))
+        } else {
+            match (self, rhs) {
+                (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.div(b))),
+                (a, b) => Ok(Number::Float(a.to_f64().div(b.to_f64()))),
+            }
         }
     }
 }
@@ -225,15 +243,21 @@ impl Pow<Number> for Number {
     type Output = Result<Number, EvalError>;
 
     fn pow(self, rhs: Number) -> Self::Output {
-        match (self, rhs) {
-            (Number::Rational(a), Number::Rational(b)) if b.is_integer() => {
-                if let Some(i) = b.to_i32() {
-                    Ok(Number::Rational(a.pow(i)))
-                } else {
-                    Ok(Number::Float(a.to_f64().unwrap().pow(b.to_f64().unwrap())))
-                }
-            },
-            (a, b) => Ok(Number::Float(a.to_f64().pow(b.to_f64()))),
+        if self.is_zero() && rhs.is_negative() {
+            Err(EvalError::MathError("Division by zero".to_owned()))
+        } else if self.is_zero() && rhs.is_zero() {
+            Err(EvalError::MathError("Zero to the power of zero".to_owned()))
+        } else {
+            match (self, rhs) {
+                (Number::Rational(a), Number::Rational(b)) if b.is_integer() => {
+                    if let Some(i) = b.to_i32() {
+                        Ok(Number::Rational(a.pow(i)))
+                    } else {
+                        Ok(Number::Float(a.to_f64().unwrap().pow(b.to_f64().unwrap())))
+                    }
+                },
+                (a, b) => Ok(Number::Float(a.to_f64().pow(b.to_f64()))),
+            }
         }
     }
 }
