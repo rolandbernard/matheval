@@ -1,14 +1,17 @@
 
+use std::str::FromStr;
+
 use matheval::Expr;
 use matheval::Number;
 use matheval::NumberContext;
-use matheval::Value;
 
 fn main() {
-    let expr = Expr::parse("1.1e+1 * 100 + 7 / 100").unwrap();
+    let expr = Expr::parse("1.1e+1 * 100 + 7 / 100 - 6 ^ -2 / 8 ^ 2 * pi + e").unwrap();
     println!("{:?}", expr);
     let res = expr.eval_in(&NumberContext::new()).unwrap();
     println!("{:?}", res);
-    println!("{:?}", Number::parse_from("0b1e11"));
+    println!("{:?}", res.to_f64());
+    println!("{:?}", res.to_string());
+    println!("{:?}", Number::from_str("0b1e11"));
 }
 

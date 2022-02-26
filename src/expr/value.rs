@@ -1,18 +1,20 @@
 
+use std::str::FromStr;
+use std::ops::*;
+use num::traits::Pow;
+
 use super::EvalError;
 
 pub trait Value
-where Self: Sized + ToString {
-    fn parse_from(s: &str) -> Result<Self, EvalError>;
+where Self:
+    Sized + ToString
+    + FromStr<Err = EvalError> + Add<Output = Result<Self, EvalError>>
+    + Sub<Output = Result<Self, EvalError>> + Mul<Output = Result<Self, EvalError>>
+    + Div<Output = Result<Self, EvalError>> + Neg<Output = Result<Self, EvalError>>
+    + Pow<Self, Output = Result<Self, EvalError>> + PartialOrd
+{}
 
-    fn add(&self, o: &Self) -> Result<Self, EvalError>;
-
-    fn mul(&self, o: &Self) -> Result<Self, EvalError>;
-
-    fn pow(&self, o: &Self) -> Result<Self, EvalError>;
-}
-
-pub type ContextFn<V> = Box<dyn Fn(&[V]) -> Result<V, EvalError>>;
+pub type ContextFn<V> = Box<dyn Fn(Vec<V>) -> Result<V, EvalError>>;
 
 pub trait Context<V: Value> {
     fn set_variable(&mut self, name: &str, value: V);

@@ -1,5 +1,6 @@
 
 use std::ops::*;
+use std::str::FromStr;
 use num::*;
 use num::traits::Pow;
 
@@ -26,7 +27,7 @@ impl Number {
             Number::Float(f) => BigRational::from_f64(*f).unwrap(),
         }
     }
-
+    
     pub fn is_zero(&self) -> bool {
         match self {
             Number::Rational(r) => r.is_zero(),
@@ -64,8 +65,10 @@ impl ToString for Number {
     }
 }
 
-impl Value for Number {
-    fn parse_from(s: &str) -> Result<Self, EvalError> {
+impl FromStr for Number {
+    type Err = EvalError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         #[derive(PartialEq)]
         enum Phase {
             Int, Frac, Exp
@@ -145,32 +148,79 @@ impl Value for Number {
         }
         return Ok(Number::Rational(BigRational::new(num, den)));
     }
+}
 
-    fn add(&self, o: &Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
-            return Ok(Number::Rational(a.add(b)));
-        } else {
-            return Ok(Number::Float(self.to_f64() + o.to_f64()));
+impl Neg for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn neg(self) -> Self::Output {
+        match self {
+            Number::Rational(r) => Ok(Number::Rational(r.neg())),
+            Number::Float(f) => Ok(Number::Float(f.neg())),
         }
-    }
-
-    fn mul(&self, o: &Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
-            return Ok(Number::Rational(a.mul(b)));
-        } else {
-            return Ok(Number::Float(self.to_f64() * o.to_f64()));
-        }
-    }
-
-    fn pow(&self, o: &Self) -> Result<Self, EvalError> {
-        if let (Number::Rational(a), Number::Rational(b)) = (self, o) {
-            if b.is_integer() {
-                if let Some(i) = b.to_i32() {
-                    return Ok(Number::Rational(a.pow(i)));
-                }
-            }
-        } 
-        return Ok(Number::Float(self.to_f64().pow(o.to_f64())));
     }
 }
+
+impl Add for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.add(b))),
+            (a, b) => Ok(Number::Float(a.to_f64().add(b.to_f64()))),
+        }
+    }
+}
+
+impl Sub for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.sub(b))),
+            (a, b) => Ok(Number::Float(a.to_f64().sub(b.to_f64()))),
+        }
+    }
+}
+
+impl Mul for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.mul(b))),
+            (a, b) => Ok(Number::Float(a.to_f64().mul(b.to_f64()))),
+        }
+    }
+}
+
+impl Div for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Number::Rational(a), Number::Rational(b)) => Ok(Number::Rational(a.div(b))),
+            (a, b) => Ok(Number::Float(a.to_f64().div(b.to_f64()))),
+        }
+    }
+}
+
+impl Pow<Number> for Number {
+    type Output = Result<Number, EvalError>;
+
+    fn pow(self, rhs: Number) -> Self::Output {
+        match (self, rhs) {
+            (Number::Rational(a), Number::Rational(b)) if b.is_integer() => {
+                if let Some(i) = b.to_i32() {
+                    Ok(Number::Rational(a.pow(i)))
+                } else {
+                    Ok(Number::Float(a.to_f64().unwrap().pow(b.to_f64().unwrap())))
+                }
+            },
+            (a, b) => Ok(Number::Float(a.to_f64().pow(b.to_f64()))),
+        }
+    }
+}
+
+impl Value for Number { }
 

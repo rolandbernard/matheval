@@ -12,7 +12,7 @@ pub struct NumberContext {
     funcs: HashMap<String, ContextFn<Number>>,
 }
 
-fn check_length(args: &[Number], min: usize, max: usize) -> Result<&[Number], EvalError> {
+fn check_length(args: Vec<Number>, min: usize, max: usize) -> Result<Vec<Number>, EvalError> {
     if args.len() < min {
         return Err(EvalError::ArgumentMismatch("Too few arguments to function".to_owned()));
     } else if args.len() > max {
@@ -22,8 +22,8 @@ fn check_length(args: &[Number], min: usize, max: usize) -> Result<&[Number], Ev
     }
 }
 
-fn min(args: &[Number]) -> Result<Number, EvalError> {
-    check_length(args, 1, usize::MAX)?;
+fn min(mut args: Vec<Number>) -> Result<Number, EvalError> {
+    args = check_length(args, 1, usize::MAX)?;
     let mut m = 0;
     for i in 1..args.len() {
         if args[i] < args[m] {
@@ -33,8 +33,8 @@ fn min(args: &[Number]) -> Result<Number, EvalError> {
     return Ok(args[m].clone());
 }
 
-fn max(args: &[Number]) -> Result<Number, EvalError> {
-    check_length(args, 1, usize::MAX)?;
+fn max(mut args: Vec<Number>) -> Result<Number, EvalError> {
+    args = check_length(args, 1, usize::MAX)?;
     let mut m = 0;
     for i in 1..args.len() {
         if args[i] > args[m] {
@@ -66,7 +66,9 @@ impl NumberContext {
         res.set_function("asin", Box::new(|v| Ok(check_length(v, 1, 1)?[0].asin())));
         res.set_function("acos", Box::new(|v| Ok(check_length(v, 1, 1)?[0].acos())));
         res.set_function("atan", Box::new(|v| Ok(check_length(v, 1, 1)?[0].atan())));
-        res.set_function("atan2", Box::new(|v| Ok(check_length(v, 2, 2)?[0].atan2(&v[1]))));
+        res.set_function("atan2", Box::new(|mut v| Ok({
+            v = check_length(v, 2, 2)?; v[0].atan2(&v[1])
+        })));
         res.set_function("sinh", Box::new(|v| Ok(check_length(v, 1, 1)?[0].sinh())));
         res.set_function("cosh", Box::new(|v| Ok(check_length(v, 1, 1)?[0].cosh())));
         res.set_function("tanh", Box::new(|v| Ok(check_length(v, 1, 1)?[0].tanh())));
