@@ -141,7 +141,7 @@ impl FromStr for Number {
                         phase = Phase::Frac;
                     }
                 },
-                'e' => {
+                'e' if base == 10 => {
                     if phase == Phase::Exp {
                         return Err(EvalError::InvalidLiteral("Unexpected 'e' characters".to_owned()));
                     } else {

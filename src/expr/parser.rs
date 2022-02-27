@@ -87,7 +87,7 @@ impl ExprTokenizer {
                         *pos += 1;
                     }
                 }
-                if *pos < source.len() && source[*pos] == 'e' {
+                if base == 10 && *pos < source.len() && source[*pos] == 'e' {
                     if *pos + 1 < source.len() && source[*pos + 1].is_digit(base) {
                         *pos += 2;
                     } else if *pos + 2 < source.len() && (source[*pos + 1] == '+' || source[*pos + 1] == '-') && source[*pos + 2].is_digit(base) {
