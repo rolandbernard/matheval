@@ -99,84 +99,74 @@ impl FromStr for Number {
     type Err = EvalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        #[derive(PartialEq)]
-        enum Phase {
-            Int, Frac, Exp
-        }
-        let mut phase = Phase::Int;
+        let chars = s.chars().collect::<Vec<_>>();
+        let mut pos = 0;
         let mut num = BigInt::zero();
         let mut den = BigInt::one();
-        let mut exp = BigUint::zero();
-        let mut next_exp = false;
-        let mut base = 10;
-        let mut start = 0;
-        for (i, c) in s.chars().enumerate() {
-            match c {
-                'b' | 'o' | 'x' => {
-                    if !num.is_zero() || phase != Phase::Int || base != 10 {
-                        return Err(EvalError::InvalidLiteral("Radix indication character after non-zero characters".to_owned()));
-                    } else if c == 'b' {
-                        base = 2;
-                    } else if c == 'o' {
-                        base = 8;
-                    } else {
-                        base = 16;
-                    }
-                },
-                '-' | '+' => {
-                    if i != start {
-                        return Err(EvalError::InvalidLiteral("'-' or '+' characters not at beginning".to_owned()));
-                    } else if c == '-' {
-                        if phase == Phase::Int {
-                            den = -den;
-                        } else {
-                            next_exp = true;
-                        }
-                    }
-                },
-                '.' => {
-                    if phase != Phase::Int {
-                        return Err(EvalError::InvalidLiteral("Unexpected '.' characters".to_owned()));
-                    } else {
-                        phase = Phase::Frac;
-                    }
-                },
-                'e' if base == 10 => {
-                    if phase == Phase::Exp {
-                        return Err(EvalError::InvalidLiteral("Unexpected 'e' characters".to_owned()));
-                    } else {
-                        phase = Phase::Exp;
-                        start = i + 1;
-                    }
-                }
-                _ => {
-                    if phase == Phase::Exp {
-                        exp *= base;
-                        if let Some(d) = c.to_digit(base) {
-                            exp += d;
-                        } else {
-                            return Err(EvalError::InvalidLiteral("Literal contains non-digit characters".to_owned()));
-                        }
-                    } else {
-                        if phase == Phase::Frac {
-                            den *= base;
-                        }
-                        num *= base;
-                        if let Some(d) = c.to_digit(base) {
-                            num += d;
-                        } else {
-                            return Err(EvalError::InvalidLiteral("Literal contains non-digit characters".to_owned()));
-                        }
-                    }
-                },
+        if pos < chars.len() && (chars[pos] == '-' || chars[pos] == '+') {
+            if chars[pos] == '-' {
+                den = -den;
+            }
+            pos += 1;
+        }
+        let base;
+        if pos + 2 < chars.len() && chars[pos] == '0' && chars[pos + 1] == 'b' && chars[pos + 2].is_digit(2) {
+            pos += 2;
+            base = 2;
+        } else if pos + 2 < chars.len() && chars[pos] == '0' && chars[pos + 1] == 'o' && chars[pos + 2].is_digit(8) {
+            pos += 2;
+            base = 8;
+        } else if pos + 2 < chars.len() && chars[pos] == '0' && chars[pos + 1] == 'x' && chars[pos + 2].is_digit(16) {
+            pos += 2;
+            base = 16;
+        } else if pos < chars.len() && chars[pos].is_digit(10) {
+            base = 10;
+        } else {
+            return Err(EvalError::InvalidLiteral("Literals must not be empty".to_owned()));
+        }
+        while pos < chars.len() && chars[pos].is_digit(base) {
+            num = base * num + chars[pos].to_digit(base).unwrap();
+            pos += 1;
+        }
+        if pos + 1 < chars.len() && chars[pos] == '.' && chars[pos + 1].is_digit(base) {
+            pos += 1;
+            while pos < chars.len() && chars[pos].is_digit(base) {
+                num = base * num + chars[pos].to_digit(base).unwrap();
+                den *= base;
+                pos += 1;
             }
         }
-        if next_exp {
-            den *= BigInt::from_u32(base).unwrap().pow(exp);
-        } else {
-            num *= BigInt::from_u32(base).unwrap().pow(exp);
+        if base == 10 && pos < chars.len() && chars[pos] == 'e' {
+            let neg;
+            if pos + 1 < chars.len() && chars[pos + 1].is_digit(base) {
+                neg = false;
+                pos += 1;
+            } else if pos + 2 < chars.len() && (chars[pos + 1] == '+' || chars[pos + 1] == '-') && chars[pos + 2].is_digit(base) {
+                if chars[pos + 1] == '-' {
+                    neg = true;
+                } else {
+                    neg = false;
+                }
+                pos += 2;
+            } else {
+                return Err(EvalError::InvalidLiteral("Missing exponent".to_owned()));
+            }
+            let mut exp = BigUint::zero();
+            while pos < chars.len() && chars[pos].is_digit(base) {
+                exp = base * exp + chars[pos].to_digit(base).unwrap();
+                pos += 1;
+            }
+            if neg {
+                den *= BigInt::from_u32(base).unwrap().pow(exp);
+            } else {
+                num *= BigInt::from_u32(base).unwrap().pow(exp);
+            }
         }
-        return Ok(Number::Rational(BigRational::new(num, den)));
+        if pos != chars.len() {
+            return Err(EvalError::InvalidLiteral(format!("Unexpected character '{}'", chars[pos])));
+        } else {
+            return Ok(Number::Rational(BigRational::new(num, den)));
+        }
     }
 }
 
