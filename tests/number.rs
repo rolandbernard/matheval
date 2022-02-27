@@ -116,6 +116,12 @@ fn number_from_str_exponent() {
         BigInt::from_i32(25).unwrap()
     ));
     assert_eq!(exp, num);
+    let num = Number::from_str("+12.3452e2").expect("Failed parsing number");
+    let exp = Number::Rational(BigRational::new(
+        BigInt::from_i32(30863).unwrap(),
+        BigInt::from_i32(25).unwrap()
+    ));
+    assert_eq!(exp, num);
 }
 
 #[test]
@@ -146,6 +152,142 @@ fn number_from_str_error() {
     assert!(Number::from_str("0o1e1").is_err(), "Exponent on octal");
     assert!(Number::from_str("0o1e+1").is_err(), "Exponent on hex");
     assert!(Number::from_str("123+456").is_err(), "Sign character in center");
+    assert!(Number::from_str("12abc567").is_err(), "Non digit character");
+    assert!(Number::from_str("+abc").is_err(), "No digits");
+    assert!(Number::from_str("123+").is_err(), "Unexpected sign character");
 }
 
+#[test]
+fn number_to_string_integer() {
+    let num = Number::from_str("004200").expect("Failed parsing number");
+    assert_eq!("4200", num.to_string());
+}
+
+#[test]
+fn number_to_string_fraction() {
+    let num = Number::from_str("004.200").expect("Failed parsing number");
+    assert_eq!("21/5", num.to_string());
+}
+
+#[test]
+fn number_to_string_float() {
+    let num = Number::Float(12.3456789);
+    assert_eq!("12.3456789", num.to_string());
+}
+
+#[test]
+fn number_to_f64_integer() {
+    let num = Number::from_str("004200").expect("Failed parsing number");
+    assert_eq!(4200.0, num.to_f64());
+}
+
+#[test]
+fn number_to_f64_fraction() {
+    let num = Number::from_str("004.200").expect("Failed parsing number");
+    assert_eq!(4.2, num.to_f64());
+}
+
+#[test]
+fn number_to_f64_float() {
+    let num = Number::Float(12.3456789);
+    assert_eq!(12.3456789, num.to_f64());
+}
+
+#[test]
+fn number_is_integer_integer() {
+    let num = Number::from_str("004200").expect("Failed parsing number");
+    assert!(num.is_integer());
+}
+
+#[test]
+fn number_is_integer_fraction() {
+    let num = Number::from_str("004.200").expect("Failed parsing number");
+    assert!(!num.is_integer());
+}
+
+#[test]
+fn number_is_integer_float() {
+    let num = Number::Float(12.3456789);
+    assert!(!num.is_integer());
+    let num = Number::Float(123456789.0);
+    assert!(num.is_integer());
+}
+
+#[test]
+fn number_is_zero_rational() {
+    let num = Number::from_str("0.02e-100").expect("Failed parsing number");
+    assert!(!num.is_zero());
+    let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
+    assert!(!num.is_zero());
+    let num = Number::from_str("0.00000").expect("Failed parsing number");
+    assert!(num.is_zero());
+}
+
+#[test]
+fn number_is_zero_float() {
+    let num = Number::Float(12.3456789);
+    assert!(!num.is_zero());
+    let num = Number::Float(-12.3456789);
+    assert!(!num.is_zero());
+    let num = Number::Float(f64::INFINITY);
+    assert!(!num.is_zero());
+    let num = Number::Float(f64::NEG_INFINITY);
+    assert!(!num.is_zero());
+    let num = Number::Float(f64::NAN);
+    assert!(!num.is_zero());
+    let num = Number::Float(0.0);
+    assert!(num.is_zero());
+}
+
+#[test]
+fn number_is_positive_rational() {
+    let num = Number::from_str("0.02e-100").expect("Failed parsing number");
+    assert!(num.is_positive());
+    let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
+    assert!(!num.is_positive());
+    let num = Number::from_str("0.00000").expect("Failed parsing number");
+    assert!(!num.is_positive());
+}
+
+#[test]
+fn number_is_positive_float() {
+    let num = Number::Float(12.3456789);
+    assert!(num.is_positive());
+    let num = Number::Float(f64::INFINITY);
+    assert!(num.is_positive());
+    let num = Number::Float(-12.3456789);
+    assert!(!num.is_positive());
+    let num = Number::Float(f64::NEG_INFINITY);
+    assert!(!num.is_positive());
+    let num = Number::Float(f64::NAN);
+    assert!(!num.is_positive());
+    let num = Number::Float(0.0);
+    assert!(!num.is_positive());
+}
+
+#[test]
+fn number_is_negative_rational() {
+    let num = Number::from_str("0.02e-100").expect("Failed parsing number");
+    assert!(!num.is_negative());
+    let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
+    assert!(num.is_negative());
+    let num = Number::from_str("0.00000").expect("Failed parsing number");
+    assert!(!num.is_negative());
+}
+
+#[test]
+fn number_is_negative_float() {
+    let num = Number::Float(12.3456789);
+    assert!(!num.is_negative());
+    let num = Number::Float(f64::INFINITY);
+    assert!(!num.is_negative());
+    let num = Number::Float(-12.3456789);
+    assert!(num.is_negative());
+    let num = Number::Float(f64::NEG_INFINITY);
+    assert!(num.is_negative());
+    let num = Number::Float(f64::NAN);
+    assert!(!num.is_negative());
+    let num = Number::Float(0.0);
+    assert!(!num.is_negative());
+}
 
