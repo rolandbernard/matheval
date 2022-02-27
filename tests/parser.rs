@@ -145,6 +145,28 @@ fn parse_simple_mul() {
 }
 
 #[test]
+fn parse_implicit_mul() {
+    let parsed = Expr::parse("12a1").expect("Failed to parse implicit mul");
+    assert_eq!(Expr::Mul(
+        Box::new(Expr::Literal("12".to_owned())),
+        Box::new(Expr::Variable("a1".to_owned()))
+    ), parsed);
+    let parsed = Expr::parse("12 42").expect("Failed to parse implicit mul");
+    assert_eq!(Expr::Mul(
+        Box::new(Expr::Literal("12".to_owned())),
+        Box::new(Expr::Literal("42".to_owned()))
+    ), parsed);
+    let parsed = Expr::parse("12(a1 + a2)").expect("Failed to parse implicit mul");
+    assert_eq!(Expr::Mul(
+        Box::new(Expr::Literal("12".to_owned())),
+        Box::new(Expr::Add(
+            Box::new(Expr::Variable("a1".to_owned())),
+            Box::new(Expr::Variable("a2".to_owned()))
+        ))
+    ), parsed);
+}
+
+#[test]
 fn parse_simple_div() {
     let parsed = Expr::parse("a1 / a2").expect("Failed to parse simple div");
     assert_eq!(Expr::Div(
@@ -392,5 +414,29 @@ fn parse_precedence_add_mul_pow() {
             ))
         )),
     ), parsed);
+}
+
+#[test]
+fn parse_error() {
+    assert!(Expr::parse("").is_err(), "Empty expressions are illegal");
+    assert!(Expr::parse("+").is_err(), "Expected value after unary '+'");
+    assert!(Expr::parse("-").is_err(), "Expected value after unary '-'");
+    assert!(Expr::parse("* a").is_err(), "Not a unary operator '*'");
+    assert!(Expr::parse("/ a").is_err(), "Not a unary operator '/'");
+    assert!(Expr::parse("^ a").is_err(), "Not a unary operator '^'");
+    assert!(Expr::parse("a + ").is_err(), "Missing second '+' operand");
+    assert!(Expr::parse("a - ").is_err(), "Missing second '-' operand");
+    assert!(Expr::parse("a * ").is_err(), "Missing second '*' operand");
+    assert!(Expr::parse("a / ").is_err(), "Missing second '/' operand");
+    assert!(Expr::parse("a ^ ").is_err(), "Missing second '^' operand");
+    assert!(Expr::parse("a +$ b").is_err(), "Unexpected character '$'");
+    assert!(Expr::parse("a + b) * 2").is_err(), "Unexpected closing paren ')'");
+    assert!(Expr::parse("(a + b * 2").is_err(), "Missing closing paren ')'");
+    assert!(Expr::parse("sin(a + b * 2").is_err(), "Missing closing paren ')' for function");
+    assert!(Expr::parse("sin(a + b, 2").is_err(), "Missing closing paren ')' for function");
+    assert!(Expr::parse("sin(a + b, 2,)").is_err(), "Unexpected character ',' in function arguments");
+    assert!(Expr::parse("sin(a + b, , 2)").is_err(), "Empty function argument");
+    assert!(Expr::parse("a + () * b").is_err(), "Empty parens");
+    assert!(Expr::parse("a + (b * (c *) 2)").is_err(), "Misplaced parens");
 }
 
