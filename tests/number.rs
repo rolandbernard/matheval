@@ -1,5 +1,6 @@
 
-use std::{str::FromStr, cmp::Ordering};
+use std::{str::FromStr, cmp::Ordering, ops::*};
+use num::traits::Pow;
 use num::*;
 
 use matheval::Number;
@@ -410,5 +411,332 @@ fn number_ord_float_rational() {
     assert!(Number::Float(1e100) > Number::from_str("1e-100").expect("Failed parsing number"));
     assert!(Number::Float(1e-100) < Number::from_str("1e100").expect("Failed parsing number"));
     assert!(Number::Float(1e-100) > Number::from_str("-1e100").expect("Failed parsing number"));
+}
+
+#[test]
+fn number_neg_rational() {
+    assert_eq!(Number::from_str("0.02e-100").unwrap().neg().unwrap(), Number::from_str("-0.02e-100").unwrap());
+    assert_eq!(Number::from_str("-0.02e-100").unwrap().neg().unwrap(), Number::from_str("0.02e-100").unwrap());
+    assert_eq!(Number::from_str("42.12").unwrap().neg().unwrap(), Number::from_str("-42.12").unwrap());
+    assert_eq!(Number::from_str("-42.12").unwrap().neg().unwrap(), Number::from_str("42.12").unwrap());
+}
+
+#[test]
+fn number_neg_float() {
+    assert_eq!(Number::Float(12.3456789).neg().unwrap(), Number::Float(-12.3456789));
+    assert_eq!(Number::Float(42.0).neg().unwrap(), Number::Float(-42.0));
+    assert_eq!(Number::Float(-42.12).neg().unwrap(), Number::Float(42.12));
+    assert_eq!(Number::Float(1e100).neg().unwrap(), Number::Float(-1e100));
+    assert_eq!(Number::Float(-1e100).neg().unwrap(), Number::Float(1e100));
+}
+
+#[test]
+fn number_add_rational() {
+    assert_eq!(
+        Number::from_str("0.02e-100").unwrap().add(
+            Number::from_str("-0.02e-100").unwrap()
+        ).unwrap(),
+        Number::from_str("0.0").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.01e-100").unwrap().add(
+            Number::from_str("0.01e-100").unwrap()
+        ).unwrap(),
+        Number::from_str("0.02e-100").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.0").unwrap().add(
+            Number::from_str("-42.12").unwrap()
+        ).unwrap(),
+        Number::from_str("-42.12").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("31.06").unwrap().add(
+            Number::from_str("11.06").unwrap()
+        ).unwrap(),
+        Number::from_str("42.12").unwrap()
+    );
+}
+
+#[test]
+fn number_add_float() {
+    assert_eq!(
+        Number::Float(12.3456789).add(
+            Number::Float(-12.3456789)
+        ).unwrap(),
+        Number::Float(0.0)
+    );
+    assert_eq!(
+        Number::Float(0.0).add(
+            Number::Float(-42.0)
+        ).unwrap(),
+        Number::Float(-42.0)
+    );
+    assert_eq!(
+        Number::Float(12.12).add(
+            Number::Float(30.0)
+        ).unwrap(),
+        Number::Float(42.12)
+    );
+    assert_eq!(
+        Number::Float(-5e99).add(
+            Number::Float(-5e99)
+        ).unwrap(),
+        Number::Float(-1e100)
+    );
+    assert_eq!(
+        Number::Float(0.25e100).add(
+            Number::Float(0.75e100)
+        ).unwrap(),
+        Number::Float(1e100)
+    );
+}
+
+#[test]
+fn number_sub_rational() {
+    assert_eq!(
+        Number::from_str("0.02e-100").unwrap().sub(
+            Number::from_str("0.02e-100").unwrap()
+        ).unwrap(),
+        Number::from_str("0.0").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.01e-100").unwrap().sub(
+            Number::from_str("-0.01e-100").unwrap()
+        ).unwrap(),
+        Number::from_str("0.02e-100").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.0").unwrap().sub(
+            Number::from_str("42.12").unwrap()
+        ).unwrap(),
+        Number::from_str("-42.12").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("31.06").unwrap().sub(
+            Number::from_str("-11.06").unwrap()
+        ).unwrap(),
+        Number::from_str("42.12").unwrap()
+    );
+}
+
+#[test]
+fn number_sub_float() {
+    assert_eq!(
+        Number::Float(12.3456789).sub(
+            Number::Float(12.3456789)
+        ).unwrap(),
+        Number::Float(0.0)
+    );
+    assert_eq!(
+        Number::Float(0.0).sub(
+            Number::Float(42.0)
+        ).unwrap(),
+        Number::Float(-42.0)
+    );
+    assert_eq!(
+        Number::Float(12.12).sub(
+            Number::Float(-30.0)
+        ).unwrap(),
+        Number::Float(42.12)
+    );
+    assert_eq!(
+        Number::Float(-5e99).sub(
+            Number::Float(5e99)
+        ).unwrap(),
+        Number::Float(-1e100)
+    );
+    assert_eq!(
+        Number::Float(0.25e100).sub(
+            Number::Float(-0.75e100)
+        ).unwrap(),
+        Number::Float(1e100)
+    );
+}
+
+#[test]
+fn number_mul_rational() {
+    assert_eq!(
+        Number::from_str("0.02e-100").unwrap().mul(
+            Number::from_str("5").unwrap()
+        ).unwrap(),
+        Number::from_str("0.1e-100").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.01e-10").unwrap().mul(
+            Number::from_str("-1e-10").unwrap()
+        ).unwrap(),
+        Number::from_str("-0.01e-20").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.0").unwrap().mul(
+            Number::from_str("42.12").unwrap()
+        ).unwrap(),
+        Number::from_str("0.0").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("1.1").unwrap().mul(
+            Number::from_str("1.2").unwrap()
+        ).unwrap(),
+        Number::from_str("1.32").unwrap()
+    );
+}
+
+#[test]
+fn number_mul_float() {
+    assert_eq!(
+        Number::Float(12.3456789).mul(
+            Number::Float(0.0)
+        ).unwrap(),
+        Number::Float(0.0)
+    );
+    assert_eq!(
+        Number::Float(-1.0).mul(
+            Number::Float(42.0)
+        ).unwrap(),
+        Number::Float(-42.0)
+    );
+    assert_eq!(
+        Number::Float(1.25).mul(
+            Number::Float(1.75)
+        ).unwrap(),
+        Number::Float(2.1875)
+    );
+    assert_eq!(
+        Number::Float(-5e99).mul(
+            Number::Float(-1.0)
+        ).unwrap(),
+        Number::Float(5e99)
+    );
+    assert_eq!(
+        Number::Float(1.5).mul(
+            Number::Float(25.0)
+        ).unwrap(),
+        Number::Float(37.5)
+    );
+}
+
+#[test]
+fn number_div_rational() {
+    assert_eq!(
+        Number::from_str("42.12").unwrap().div(
+            Number::from_str("42.12").unwrap()
+        ).unwrap(),
+        Number::from_str("1").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("42").unwrap().div(
+            Number::from_str("-1e-10").unwrap()
+        ).unwrap(),
+        Number::from_str("-42e10").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.0").unwrap().div(
+            Number::from_str("42.12").unwrap()
+        ).unwrap(),
+        Number::from_str("0.0").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("1.1").unwrap().div(
+            Number::from_str("2.2").unwrap()
+        ).unwrap(),
+        Number::from_str("0.5").unwrap()
+    );
+    assert!(
+        Number::from_str("1.1").unwrap().div(
+            Number::from_str("0.0").unwrap()
+        ).is_err()
+    );
+}
+
+#[test]
+fn number_div_float() {
+    assert_eq!(
+        Number::Float(0.0).div(
+            Number::Float(12.42)
+        ).unwrap(),
+        Number::Float(0.0)
+    );
+    assert_eq!(
+        Number::Float(-42.0).div(
+            Number::Float(2.0)
+        ).unwrap(),
+        Number::Float(-21.0)
+    );
+    assert_eq!(
+        Number::Float(13.5).div(
+            Number::Float(1.5)
+        ).unwrap(),
+        Number::Float(9.0)
+    );
+    assert!(
+        Number::Float(1.5).div(
+            Number::Float(0.0)
+        ).is_err()
+    );
+}
+
+#[test]
+fn number_pow_rational() {
+    assert_eq!(
+        Number::from_str("3").unwrap().pow(
+            Number::from_str("16").unwrap()
+        ).unwrap(),
+        Number::from_str("43046721").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.5").unwrap().pow(
+            Number::from_str("8").unwrap()
+        ).unwrap(),
+        Number::from_str("0.00390625").unwrap()
+    );
+    assert_eq!(
+        Number::from_str("0.0").unwrap().pow(
+            Number::from_str("42").unwrap()
+        ).unwrap(),
+        Number::from_str("0.0").unwrap()
+    );
+    assert!(
+        Number::from_str("0.0").unwrap().pow(
+            Number::from_str("-2").unwrap()
+        ).is_err(),
+    );
+    assert!(
+        Number::from_str("0").unwrap().pow(
+            Number::from_str("0").unwrap()
+        ).is_err(),
+    );
+}
+
+#[test]
+fn number_pow_float() {
+    assert_eq!(
+        Number::Float(0.0).pow(
+            Number::Float(12.42)
+        ).unwrap(),
+        Number::Float(0.0)
+    );
+    assert_eq!(
+        Number::Float(2.5).pow(
+            Number::Float(2.5)
+        ).unwrap(),
+        Number::Float(9.882117688026186)
+    );
+    assert_eq!(
+        Number::Float(3.0).pow(
+            Number::Float(2.0)
+        ).unwrap(),
+        Number::Float(9.0)
+    );
+    assert!(
+        Number::Float(0.0).pow(
+            Number::Float(-2.0)
+        ).is_err()
+    );
+    assert!(
+        Number::Float(0.0).pow(
+            Number::Float(0.0)
+        ).is_err()
+    );
 }
 
