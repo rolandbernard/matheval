@@ -1,5 +1,5 @@
 
-use std::str::FromStr;
+use std::{str::FromStr, cmp::Ordering};
 use num::*;
 
 use matheval::Number;
@@ -289,5 +289,126 @@ fn number_is_negative_float() {
     assert!(!num.is_negative());
     let num = Number::Float(0.0);
     assert!(!num.is_negative());
+}
+
+#[test]
+fn number_eq_rational() {
+    assert!(Number::Rational(BigRational::new(
+        BigInt::from_i32(42239).unwrap(),
+        BigInt::from_i32(16).unwrap()
+    )).eq(&Number::Rational(BigRational::new(
+        BigInt::from_i32(42239).unwrap(),
+        BigInt::from_i32(16).unwrap()
+    ))));
+    assert!(Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    )).eq(&Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    ))));
+    assert!(!Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    )).eq(&Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    ))));
+    assert!(!Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    )).eq(&Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456788).unwrap()
+    ))));
+}
+
+#[test]
+fn number_eq_float() {
+    assert!(Number::Float(42.12).eq(&Number::Float(42.12)));
+    assert!(Number::Float(0.012e-199).eq(&Number::Float(0.12e-200)));
+    assert!(Number::Float(0.12e+199).eq(&Number::Float(0.012e+200)));
+    assert!(Number::Float(f64::INFINITY).eq(&Number::Float(f64::INFINITY)));
+    assert!(Number::Float(f64::NEG_INFINITY).eq(&Number::Float(f64::NEG_INFINITY)));
+    assert!(Number::Float(-0.0).eq(&Number::Float(0.0)));
+    assert!(!Number::Float(42.12).eq(&Number::Float(42.121)));
+    assert!(!Number::Float(-42.12).eq(&Number::Float(42.12)));
+    assert!(!Number::Float(f64::NAN).eq(&Number::Float(f64::NAN)));
+    assert!(!Number::Float(1.0).eq(&Number::Float(f64::NAN)));
+    assert!(!Number::Float(f64::NAN).eq(&Number::Float(1.0)));
+    assert!(!Number::Float(f64::INFINITY).eq(&Number::Float(f64::NEG_INFINITY)));
+}
+
+#[test]
+fn number_eq_float_rational() {
+    assert!(Number::Float(42.25).eq(&Number::from_str("42.25").expect("Failed parsing number")));
+    assert!(Number::Float(-42.25).eq(&Number::from_str("-42.25").expect("Failed parsing number")));
+    assert!(Number::Float(-0.0).eq(&Number::from_str("0.0").expect("Failed parsing number")));
+    assert!(Number::Float(0.0).eq(&Number::from_str("-0.0").expect("Failed parsing number")));
+    assert!(Number::Float(1e10).eq(&Number::from_str("1e10").expect("Failed parsing number")));
+    assert!(!Number::Float(0.1).eq(&Number::from_str("0.1").expect("Failed parsing number")));
+    assert!(!Number::Float(0.2e-100).eq(&Number::from_str("0.0").expect("Failed parsing number")));
+    assert!(!Number::Float(f64::NAN).eq(&Number::from_str("0.0").expect("Failed parsing number")));
+    assert!(!Number::Float(1e100).eq(&Number::from_str("1e-100").expect("Failed parsing number")));
+}
+
+#[test]
+fn number_ord_rational() {
+    assert_eq!(Number::Rational(BigRational::new(
+        BigInt::from_i32(42239).unwrap(),
+        BigInt::from_i32(16).unwrap()
+    )).partial_cmp(&Number::Rational(BigRational::new(
+        BigInt::from_i32(42239).unwrap(),
+        BigInt::from_i32(16).unwrap()
+    ))), Some(Ordering::Equal));
+    assert_eq!(Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    )).partial_cmp(&Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    ))), Some(Ordering::Equal));
+    assert_eq!(Number::Rational(BigRational::new(
+        BigInt::from_i32(-4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    )).partial_cmp(&Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    ))), Some(Ordering::Less));
+    assert_eq!(Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456788).unwrap()
+    )).partial_cmp(&Number::Rational(BigRational::new(
+        BigInt::from_i32(4356).unwrap(),
+        BigInt::from_i32(123456789).unwrap()
+    ))), Some(Ordering::Greater));
+}
+
+#[test]
+fn number_ord_float() {
+    assert!(Number::Float(42.12) == Number::Float(42.12));
+    assert!(Number::Float(0.012e-199) == Number::Float(0.12e-200));
+    assert!(Number::Float(0.12e+199) == Number::Float(0.012e+200));
+    assert!(Number::Float(f64::INFINITY) == Number::Float(f64::INFINITY));
+    assert!(Number::Float(f64::NEG_INFINITY) == Number::Float(f64::NEG_INFINITY));
+    assert!(Number::Float(-0.0) == Number::Float(0.0));
+    assert!(Number::Float(42.12) < Number::Float(42.121));
+    assert!(Number::Float(-42.12) < Number::Float(42.12));
+    assert!(Number::Float(43.12) > Number::Float(42.121));
+    assert!(Number::Float(-42.12) > Number::Float(-142.12));
+    assert!(Number::Float(f64::INFINITY) > Number::Float(f64::NEG_INFINITY));
+}
+
+#[test]
+fn number_ord_float_rational() {
+    assert!(Number::Float(42.25) == Number::from_str("42.25").expect("Failed parsing number"));
+    assert!(Number::Float(-42.25) == Number::from_str("-42.25").expect("Failed parsing number"));
+    assert!(Number::Float(-0.0) == Number::from_str("0.0").expect("Failed parsing number"));
+    assert!(Number::Float(0.0) == Number::from_str("-0.0").expect("Failed parsing number"));
+    assert!(Number::Float(0.1) < Number::from_str("0.12").expect("Failed parsing number"));
+    assert!(Number::Float(0.2e-100) > Number::from_str("0.0").expect("Failed parsing number"));
+    assert!(Number::Float(1e100) > Number::from_str("1e-100").expect("Failed parsing number"));
+    assert!(Number::Float(1e-100) < Number::from_str("1e100").expect("Failed parsing number"));
+    assert!(Number::Float(1e-100) > Number::from_str("-1e100").expect("Failed parsing number"));
 }
 

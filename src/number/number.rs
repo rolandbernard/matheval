@@ -23,10 +23,10 @@ impl Number {
         }
     }
 
-    pub fn to_rational(&self) -> BigRational {
+    pub fn to_rational(&self) -> Option<BigRational> {
         match self {
-            Number::Rational(r) => r.clone(),
-            Number::Float(f) => BigRational::from_f64(*f).unwrap(),
+            Number::Rational(r) => Some(r.clone()),
+            Number::Float(f) => BigRational::from_f64(*f),
         }
     }
 
