@@ -94,6 +94,16 @@ fn eval_simple_sub() {
 }
 
 #[test]
+fn eval_mixed_add_sub() {
+    let parsed = Expr::parse("5 + 6e-5 - 42.5 + 15.7")
+        .expect("Failed to parse simple integer literal");
+    assert_eq!(
+        Number::from_str("-21.79994").expect("Failed parsing number"),
+        parsed.eval().expect("Evaluation failed")
+    );
+}
+
+#[test]
 fn eval_simple_mul() {
     let parsed = Expr::parse("5 * 6e-5 * 42.5")
         .expect("Failed to parse simple integer literal");
@@ -111,6 +121,13 @@ fn eval_simple_div() {
 }
 
 #[test]
+fn eval_mixed_mul_div() {
+    let parsed = Expr::parse("5 / 6e-5 + 42.5 / 15")
+        .expect("Failed to parse simple integer literal");
+    assert_eq!("500017/6", parsed.eval::<Number>().expect("Evaluation failed").to_string());
+}
+
+#[test]
 fn eval_simple_pow() {
     let parsed = Expr::parse("2 ^ 3 ^ 2")
         .expect("Failed to parse simple integer literal");
@@ -121,6 +138,160 @@ fn eval_simple_pow() {
     let parsed = Expr::parse("1.5 ^ 3.2 ^ 2.6")
         .expect("Failed to parse simple integer literal");
     assert_eq!("4202.383025252178", parsed.eval::<Number>().expect("Evaluation failed").to_string());
+}
+
+#[test]
+fn eval_mixed_mul_div_pow() {
+    let parsed = Expr::parse("5 / 6^4 + 41^2 / 2^13")
+        .expect("Failed to parse simple integer literal");
+    assert_eq!("138721/663552", parsed.eval::<Number>().expect("Evaluation failed").to_string());
+}
+
+#[test]
+fn eval_mixed_parens() {
+    let parsed = Expr::parse("(5 / 6)^(4 + 4)1^(2 / 2)^13")
+        .expect("Failed to parse simple integer literal");
+    assert_eq!("390625/1679616", parsed.eval::<Number>().expect("Evaluation failed").to_string());
+}
+
+#[test]
+fn eval_functions_general() {
+    assert_eq!("2",
+        Expr::parse("floor(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-3",
+        Expr::parse("floor(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-2",
+        Expr::parse("ceil(-15/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("2",
+        Expr::parse("round(15/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("3",
+        Expr::parse("round(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("2",
+        Expr::parse("trunc(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-2",
+        Expr::parse("trunc(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("6/7",
+        Expr::parse("fract(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-6/7",
+        Expr::parse("fract(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("20/7",
+        Expr::parse("abs(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("20/7",
+        Expr::parse("abs(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-1",
+        Expr::parse("sign(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0",
+        Expr::parse("sign(0)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("1",
+        Expr::parse("sign(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("1.6903085094570331",
+        Expr::parse("sqrt(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert!(
+        Expr::parse("sqrt(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().is_err()
+    );
+    assert_eq!("1.4189834119703841",
+        Expr::parse("cbrt(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-1.4189834119703841",
+        Expr::parse("cbrt(-20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("1.0498221244986776",
+        Expr::parse("ln(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.45593195564972433",
+        Expr::parse("log(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+}
+
+#[test]
+fn eval_functions_trig() {
+    assert_eq!("0.28062939951435684",
+        Expr::parse("sin(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-0.95981620122199",
+        Expr::parse("cos(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-0.2923782690447124",
+        Expr::parse("tan(20/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.7956029534845354",
+        Expr::parse("asin(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.7751933733103613",
+        Expr::parse("acos(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.6202494859828215",
+        Expr::parse("atan(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.6202494859828215",
+        Expr::parse("atan2(5, 7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.7765927053545946",
+        Expr::parse("sinh(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("1.2661343649115475",
+        Expr::parse("cosh(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.6133572603953827",
+        Expr::parse("tanh(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.6643306045898852",
+        Expr::parse("asinh(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.8955880995299759",
+        Expr::parse("acosh(10/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("0.8958797346140275",
+        Expr::parse("atanh(5/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
 }
 
 #[test]
