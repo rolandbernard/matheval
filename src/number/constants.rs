@@ -1,4 +1,6 @@
 
+use std::ops::Neg;
+
 use num::*;
 
 use super::Number;
@@ -6,6 +8,14 @@ use super::Number;
 impl Number {
     pub fn zero() -> Number {
         Number::Rational(BigRational::zero())
+    }
+
+    pub fn one() -> Number {
+        Number::Rational(BigRational::one())
+    }
+
+    pub fn neg_one() -> Number {
+        Number::Rational(BigRational::one().neg())
     }
 
     pub fn pi() -> Number {

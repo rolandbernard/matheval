@@ -47,9 +47,12 @@ impl Number {
     }
 
     pub fn sign(&self) -> Number {
-        match self {
-            Number::Rational(r) => Number::Rational(r.signum()),
-            Number::Float(f) => Number::Float(f.signum()),
+        if self.is_positive() {
+            return Number::one();
+        } else if self.is_negative() {
+            return Number::neg_one();
+        } else {
+            return Number::zero();
         }
     }
 
