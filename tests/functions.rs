@@ -138,17 +138,108 @@ fn function_cbrt_float() {
     assert_eq!("2.3183162575091356", Number::Float(12.46).cbrt().to_string());
     assert_eq!("0", Number::Float(0.0).cbrt().to_string());
 }
-// sin
-// cos
-// tan
-// asin
-// acos
-// atan
-// atan2
-// sinh
-// cosh
-// tanh
-// asinh
-// acosh
-// atanh
+
+#[test]
+fn function_sin_float() {
+    assert_eq!("0.5167068002272901", Number::from_str("0.543").unwrap().sin().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().sin().to_string());
+    assert_eq!("0.5167068002272901", Number::Float(0.543).sin().to_string());
+    assert_eq!("0", Number::Float(0.0).sin().to_string());
+}
+
+#[test]
+fn function_cos_float() {
+    assert_eq!("0.8561624160163044", Number::from_str("0.543").unwrap().cos().to_string());
+    assert_eq!("1", Number::from_str("0.0").unwrap().cos().to_string());
+    assert_eq!("0.8561624160163044", Number::Float(0.543).cos().to_string());
+    assert_eq!("1", Number::Float(0.0).cos().to_string());
+}
+
+#[test]
+fn function_tan_float() {
+    assert_eq!("0.6035149295988836", Number::from_str("0.543").unwrap().tan().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().tan().to_string());
+    assert_eq!("0.6035149295988836", Number::Float(0.543).tan().to_string());
+    assert_eq!("0", Number::Float(0.0).tan().to_string());
+}
+
+#[test]
+fn function_asin_float() {
+    assert_eq!("0.5740055653279919", Number::from_str("0.543").unwrap().asin().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().asin().to_string());
+    assert_eq!("0.5740055653279919", Number::Float(0.543).asin().to_string());
+    assert_eq!("0", Number::Float(0.0).asin().to_string());
+}
+
+#[test]
+fn function_acos_float() {
+    assert_eq!("0.9967907614669048", Number::from_str("0.543").unwrap().acos().to_string());
+    assert_eq!("1.5707963267948966", Number::from_str("0.0").unwrap().acos().to_string());
+    assert_eq!("0.9967907614669048", Number::Float(0.543).acos().to_string());
+    assert_eq!("1.5707963267948966", Number::Float(0.0).acos().to_string());
+}
+
+#[test]
+fn function_atan_float() {
+    assert_eq!("0.49745305021666625", Number::from_str("0.543").unwrap().atan().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().atan().to_string());
+    assert_eq!("0.49745305021666625", Number::Float(0.543).atan().to_string());
+    assert_eq!("0", Number::Float(0.0).atan().to_string());
+}
+
+#[test]
+fn function_atan2_float() {
+    assert_eq!("0.49745305021666625", Number::from_str("0.543").unwrap().atan2(&Number::one()).to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().atan2(&Number::one()).to_string());
+    assert_eq!("0.49745305021666625", Number::Float(0.543).atan2(&Number::one()).to_string());
+    assert_eq!("0", Number::Float(0.0).atan2(&Number::one()).to_string());
+}
+
+#[test]
+fn function_sinh_float() {
+    assert_eq!("0.5700799925832585", Number::from_str("0.543").unwrap().sinh().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().sinh().to_string());
+    assert_eq!("0.5700799925832585", Number::Float(0.543).sinh().to_string());
+    assert_eq!("0", Number::Float(0.0).sinh().to_string());
+}
+
+#[test]
+fn function_cosh_float() {
+    assert_eq!("1.1510826199468602", Number::from_str("0.543").unwrap().cosh().to_string());
+    assert_eq!("1", Number::from_str("0.0").unwrap().cosh().to_string());
+    assert_eq!("1.1510826199468602", Number::Float(0.543).cosh().to_string());
+    assert_eq!("1", Number::Float(0.0).cosh().to_string());
+}
+
+#[test]
+fn function_tanh_float() {
+    assert_eq!("0.49525549487453496", Number::from_str("0.543").unwrap().tanh().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().tanh().to_string());
+    assert_eq!("0.49525549487453496", Number::Float(0.543).tanh().to_string());
+    assert_eq!("0", Number::Float(0.0).tanh().to_string());
+}
+
+#[test]
+fn function_asinh_float() {
+    assert_eq!("0.5193378835551655", Number::from_str("0.543").unwrap().asinh().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().asinh().to_string());
+    assert_eq!("0.5193378835551655", Number::Float(0.543).asinh().to_string());
+    assert_eq!("0", Number::Float(0.0).asinh().to_string());
+}
+
+#[test]
+fn function_acosh_float() {
+    assert_eq!("0.999931383282944", Number::from_str("1.543").unwrap().acosh().to_string());
+    assert_eq!("0", Number::from_str("1.0").unwrap().acosh().to_string());
+    assert_eq!("0.999931383282944", Number::Float(1.543).acosh().to_string());
+    assert_eq!("0", Number::Float(1.0).acosh().to_string());
+}
+
+#[test]
+fn function_atanh_float() {
+    assert_eq!("0.6084002307344781", Number::from_str("0.543").unwrap().atanh().to_string());
+    assert_eq!("0", Number::from_str("0.0").unwrap().atanh().to_string());
+    assert_eq!("0.6084002307344781", Number::Float(0.543).atanh().to_string());
+    assert_eq!("0", Number::Float(0.0).atanh().to_string());
+}
 
