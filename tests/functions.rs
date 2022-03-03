@@ -108,6 +108,14 @@ fn function_sign_float() {
 }
 
 #[test]
+fn function_sqrt_rational() {
+    assert_eq!(Number::from_str("1.6").unwrap(), Number::from_str("2.56").unwrap().sqrt());
+    assert_eq!(Number::zero(), Number::from_str("0.0").unwrap().sqrt());
+    assert!(Number::from_str("2.56").unwrap().sqrt().is_rational());
+    assert!(Number::from_str("64").unwrap().sqrt().is_integer());
+}
+
+#[test]
 fn function_sqrt_float() {
     assert_eq!("3.529872518944558", Number::from_str("12.46").unwrap().sqrt().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().sqrt().to_string());
@@ -129,6 +137,14 @@ fn function_log_float() {
     assert_eq!("0", Number::from_str("1.0").unwrap().log().to_string());
     assert_eq!("1.0955180423231508", Number::Float(12.46).log().to_string());
     assert_eq!("0", Number::Float(1.0).log().to_string());
+}
+
+#[test]
+fn function_cbrt_rational() {
+    assert_eq!(Number::from_str("1.6").unwrap(), Number::from_str("4.096").unwrap().cbrt());
+    assert_eq!(Number::zero(), Number::from_str("0.0").unwrap().cbrt());
+    assert!(Number::from_str("4.096").unwrap().cbrt().is_rational());
+    assert!(Number::from_str("512").unwrap().cbrt().is_integer());
 }
 
 #[test]
