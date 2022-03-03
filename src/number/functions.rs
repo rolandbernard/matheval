@@ -72,11 +72,19 @@ impl Number {
     }
 
     pub fn ln(&self) -> Number {
-        Number::Float(self.to_f64().ln())
+        if self == &Number::one() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().ln())
+        }
     }
 
     pub fn log(&self) -> Number {
-        Number::Float(self.to_f64().log10())
+        if self == &Number::one() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().log10())
+        }
     }
 
     pub fn cbrt(&self) -> Number {
@@ -95,55 +103,107 @@ impl Number {
     }
 
     pub fn sin(&self) -> Number {
-        Number::Float(self.to_f64().sin())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().sin())
+        }
     }
 
     pub fn cos(&self) -> Number {
-        Number::Float(self.to_f64().cos())
+        if self.is_zero() {
+            Number::one()
+        } else {
+            Number::Float(self.to_f64().cos())
+        }
     }
 
     pub fn tan(&self) -> Number {
-        Number::Float(self.to_f64().tan())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().tan())
+        }
     }
 
     pub fn asin(&self) -> Number {
-        Number::Float(self.to_f64().asin())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().asin())
+        }
     }
 
     pub fn acos(&self) -> Number {
-        Number::Float(self.to_f64().acos())
+        if self == &Number::one() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().acos())
+        }
     }
 
     pub fn atan(&self) -> Number {
-        Number::Float(self.to_f64().atan())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().atan())
+        }
     }
 
     pub fn atan2(&self, o: &Self) -> Number {
-        Number::Float(self.to_f64().atan2(o.to_f64()))
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().atan2(o.to_f64()))
+        }
     }
 
     pub fn sinh(&self) -> Number {
-        Number::Float(self.to_f64().sinh())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().sinh())
+        }
     }
 
     pub fn cosh(&self) -> Number {
-        Number::Float(self.to_f64().cosh())
+        if self.is_zero() {
+            Number::one()
+        } else {
+            Number::Float(self.to_f64().cosh())
+        }
     }
 
     pub fn tanh(&self) -> Number {
-        Number::Float(self.to_f64().tanh())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().tanh())
+        }
     }
 
     pub fn asinh(&self) -> Number {
-        Number::Float(self.to_f64().asinh())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().asinh())
+        }
     }
 
     pub fn acosh(&self) -> Number {
-        Number::Float(self.to_f64().acosh())
+        if self == &Number::one() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().acosh())
+        }
     }
 
     pub fn atanh(&self) -> Number {
-        Number::Float(self.to_f64().atanh())
+        if self.is_zero() {
+            Number::zero()
+        } else {
+            Number::Float(self.to_f64().atanh())
+        }
     }
 }
 
