@@ -16,6 +16,13 @@ pub enum Number {
 }
 
 impl Number {
+    pub fn from_i64s(num: i64, den: i64) -> Number {
+        Number::Rational(BigRational::new(
+            BigInt::from_i64(num).unwrap(),
+            BigInt::from_i64(den).unwrap()
+        ))
+    }
+
     pub fn to_f64(&self) -> f64 {
         match self {
             Number::Rational(r) => r.to_f64().unwrap_or(f64::NAN),

@@ -13,6 +13,40 @@ pub struct Quantity {
     unit: Unit,
 }
 
+impl Quantity {
+    pub fn new(number: Number, unit: Unit) -> Quantity {
+        Quantity { number, unit }
+    }
+
+    pub fn unitless(number: Number) -> Quantity {
+        Quantity { number, unit: Unit::empty() }
+    }
+
+    pub fn pi() -> Quantity {
+        Quantity::unitless(Number::pi())
+    }
+
+    pub fn e() -> Quantity {
+        Quantity::unitless(Number::e())
+    }
+    
+    pub fn abs(&self) -> Quantity {
+        Quantity::new(self.number.abs(), self.unit.clone())
+    }
+
+    pub fn sign(&self) -> Quantity {
+        Quantity::unitless(self.number.sign())
+    }
+
+    pub fn sqrt(&self) -> Quantity {
+        Quantity::new(self.number.sqrt(), self.unit.clone().pow(Number::from_i64s(1, 2)))
+    }
+
+    pub fn cbrt(&self) -> Quantity {
+        Quantity::new(self.number.cbrt(), self.unit.clone().pow(Number::from_i64s(1, 3)))
+    }
+}
+
 impl PartialOrd for Quantity {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         if self.unit == other.unit {
@@ -33,8 +67,7 @@ impl FromStr for Quantity {
     type Err = EvalError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let number = Number::from_str(s)?;
-        return Ok(Quantity { number, unit: Unit::empty() })
+        Ok(Quantity::unitless(Number::from_str(s)?))
     }
 }
 
