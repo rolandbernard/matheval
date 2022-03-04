@@ -6,6 +6,7 @@ use super::Context;
 #[derive(Debug)]
 pub enum EvalError {
     MathError(String),
+    UnitError(String),
     InvalidLiteral(String),
     NotSupported(String),
     ArgumentMismatch(String),
@@ -17,6 +18,7 @@ impl ToString for EvalError {
     fn to_string(&self) -> String {
         match self {
             EvalError::MathError(s) => format!("Math error: {}", s),
+            EvalError::UnitError(s) => format!("Unit error: {}", s),
             EvalError::InvalidLiteral(s) => format!("Invalid literal: {}", s),
             EvalError::NotSupported(s) => format!("Not supported: {}", s),
             EvalError::ArgumentMismatch(s) => format!("Argument mismatch: {}", s),
