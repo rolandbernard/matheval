@@ -71,22 +71,22 @@ fn hex_nonint_literal() {
 #[test]
 fn simple_exponent_literal() {
     let parsed = Expr::parse("9876543210.0123456789e-0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("9876543210.0123456789e-0123456789".to_owned()), parsed);
     let parsed = Expr::parse("9876543210.0123456789e+0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("9876543210.0123456789e+0123456789".to_owned()), parsed);
     let parsed = Expr::parse("9876543210.0123456789e0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("9876543210.0123456789e0123456789".to_owned()), parsed);
     let parsed = Expr::parse("98765432100123456789e-0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("98765432100123456789e-0123456789".to_owned()), parsed);
     let parsed = Expr::parse("98765432100123456789e+0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("98765432100123456789e+0123456789".to_owned()), parsed);
     let parsed = Expr::parse("98765432100123456789e0123456789")
-        .expect("Failed to parse simple non-integer literal");
+        .expect("Failed to parse simple exponent literal");
     assert_eq!(Expr::Literal("98765432100123456789e0123456789".to_owned()), parsed);
 }
 
