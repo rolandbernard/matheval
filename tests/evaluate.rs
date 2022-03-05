@@ -295,6 +295,32 @@ fn eval_functions_trig() {
 }
 
 #[test]
+fn eval_function_min() {
+    assert_eq!("3/4",
+        Expr::parse("min(20/7, 12/4, 9/12)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("-10/7",
+        Expr::parse("min(20/7, 12/4, 9/12, -3/61, -10/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert!(Expr::parse("min()").expect("Failed to parse simple integer literal").eval::<Number>().is_err());
+}
+
+#[test]
+fn eval_function_max() {
+    assert_eq!("3",
+        Expr::parse("max(20/7, 12/4, 9/12)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert_eq!("3",
+        Expr::parse("max(20/7, 12/4, 9/12, -3/61, -10/7)").expect("Failed to parse simple integer literal")
+            .eval::<Number>().expect("Evaluation failed").to_string()
+    );
+    assert!(Expr::parse("max()").expect("Failed to parse simple integer literal").eval::<Number>().is_err());
+}
+
+#[test]
 fn eval_constants() {
     let parsed = Expr::parse("e")
         .expect("Failed to parse simple integer literal");

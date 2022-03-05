@@ -1,4 +1,5 @@
 
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use crate::Context;
@@ -26,8 +27,13 @@ fn min(mut args: Vec<Number>) -> Result<Number, EvalError> {
     args = check_length(args, 1, usize::MAX)?;
     let mut m = 0;
     for i in 1..args.len() {
-        if args[i] < args[m] {
-            m = i;
+        let ord = args[i].partial_cmp(&args[m]);
+        if let Some(o) = ord {
+            if o == Ordering::Less {
+                m = i;
+            }
+        } else {
+            return Err(EvalError::NotSupported("Values in min function are not comparable".to_owned()));
         }
     }
     return Ok(args[m].clone());
@@ -37,8 +43,13 @@ fn max(mut args: Vec<Number>) -> Result<Number, EvalError> {
     args = check_length(args, 1, usize::MAX)?;
     let mut m = 0;
     for i in 1..args.len() {
-        if args[i] > args[m] {
-            m = i;
+        let ord = args[i].partial_cmp(&args[m]);
+        if let Some(o) = ord {
+            if o == Ordering::Greater {
+                m = i;
+            }
+        } else {
+            return Err(EvalError::NotSupported("Values in max function are not comparable".to_owned()));
         }
     }
     return Ok(args[m].clone());
