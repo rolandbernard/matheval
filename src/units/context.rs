@@ -9,6 +9,7 @@ use super::{Quantity, Unit, unit::BaseUnit};
 pub struct QuantityContext {
     vars: HashMap<String, Quantity>,
     funcs: HashMap<String, ContextFn<Quantity>>,
+    units: HashMap<String, Quantity>,
 }
 
 fn check_length(args: Vec<Quantity>, min: usize, max: usize) -> Result<Vec<Quantity>, EvalError> {
@@ -175,6 +176,25 @@ fn si_derived_units() -> Vec<(&'static str, Quantity)> {
     ]
 }
 
+fn non_si_units() -> Vec<(&'static str, Quantity)> {
+    vec![
+        ("min", Quantity::new(Number::from_i64(60), Unit::base(BaseUnit::Second))),
+        ("h", Quantity::new(Number::from_i64(3600), Unit::base(BaseUnit::Second))),
+        ("d", Quantity::new(Number::from_i64(86400), Unit::base(BaseUnit::Second))),
+        ("au", Quantity::new(Number::from_i64(149_597_870_700), Unit::base(BaseUnit::Meter))),
+        ("ha", Quantity::new(Number::from_i64(10_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))),
+        ("l", Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
+        ("L", Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
+        ("t", Quantity::new(Number::from_i64(1_000_000), Unit::base(BaseUnit::Gram))),
+        ("Da", Quantity::new(Number::from_i128s(166_053_904_020, (10 as i128).pow(35)), Unit::base(BaseUnit::Gram))),
+        ("eV", Quantity::new(Number::from_i128s(1_602_176_634, (10 as i128).pow(25)),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+    ] 
+}
+
 fn add_functions_to_context(cxt: &mut QuantityContext) {
     cxt.set_function("abs", Box::new(|v| check_length(v, 1, 1)?[0].abs().nan_to_err()));
     cxt.set_function("sign", Box::new(|v| check_length(v, 1, 1)?[0].sign().nan_to_err()));
@@ -214,18 +234,23 @@ fn add_functions_to_context(cxt: &mut QuantityContext) {
 
 impl QuantityContext {
     pub fn new() -> QuantityContext {
-        let mut res = QuantityContext { vars: HashMap::new(), funcs: HashMap::new() };
+        let mut res = QuantityContext {
+            vars: HashMap::new(), funcs: HashMap::new(), units: HashMap::new()
+        };
         res.set_variable("pi", Quantity::pi());
         res.set_variable("e", Quantity::e());
         add_functions_to_context(&mut res);
+        for (symb, unit) in non_si_units() {
+            res.units.insert(symb.to_owned(), unit);
+        }
         for (pr_symbol, pr) in si_unit_prefix() {
-            for base in BaseUnit::all() {
-                let symbol = format!("{}{}", pr_symbol, base.symbol());
-                res.set_variable(&symbol, Quantity::new(pr.clone(), Unit::base(base)));
-            }
             for (symb, unit) in si_derived_units() {
                 let symbol = format!("{}{}", pr_symbol, symb);
-                res.set_variable(&symbol, Quantity::unitless(pr.clone()).mul(unit).unwrap());
+                res.units.insert(symbol, Quantity::unitless(pr.clone()).mul(unit).unwrap());
+            }
+            for base in BaseUnit::all() {
+                let symbol = format!("{}{}", pr_symbol, base.symbol());
+                res.units.insert(symbol, Quantity::new(pr.clone(), Unit::base(base)));
             }
         }
         return res;
@@ -242,7 +267,10 @@ impl Context<Quantity> for QuantityContext {
     }
 
     fn get_variable(&self, name: &str) -> Option<Quantity> {
-        return self.vars.get(name).and_then(|n| Some(n.clone()));
+        return self.vars.get(name)
+            .or_else(|| self.units.get(name)
+                .or_else(|| self.units.get(&name.to_lowercase())))
+            .and_then(|n| Some(n.clone()))
     }
 
     fn get_function<'a>(&'a self, name: &str) -> Option<&'a ContextFn<Quantity>> {
