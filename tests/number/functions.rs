@@ -4,7 +4,7 @@ use std::str::FromStr;
 use matheval::Number;
 
 #[test]
-fn function_floor_rational() {
+fn floor_rational() {
     assert_eq!("12", Number::from_str("12.46").unwrap().floor().to_string());
     assert_eq!("12", Number::from_str("12.76").unwrap().floor().to_string());
     assert_eq!("-13", Number::from_str("-12.46").unwrap().floor().to_string());
@@ -12,7 +12,7 @@ fn function_floor_rational() {
 }
 
 #[test]
-fn function_floor_float() {
+fn floor_float() {
     assert_eq!("12", Number::Float(12.46).floor().to_string());
     assert_eq!("12", Number::Float(12.76).floor().to_string());
     assert_eq!("-13", Number::Float(-12.46).floor().to_string());
@@ -20,7 +20,7 @@ fn function_floor_float() {
 }
 
 #[test]
-fn function_ceil_rational() {
+fn ceil_rational() {
     assert_eq!("13", Number::from_str("12.46").unwrap().ceil().to_string());
     assert_eq!("13", Number::from_str("12.76").unwrap().ceil().to_string());
     assert_eq!("-12", Number::from_str("-12.46").unwrap().ceil().to_string());
@@ -28,7 +28,7 @@ fn function_ceil_rational() {
 }
 
 #[test]
-fn function_ceil_float() {
+fn ceil_float() {
     assert_eq!("13", Number::Float(12.46).ceil().to_string());
     assert_eq!("13", Number::Float(12.76).ceil().to_string());
     assert_eq!("-12", Number::Float(-12.46).ceil().to_string());
@@ -36,7 +36,7 @@ fn function_ceil_float() {
 }
 
 #[test]
-fn function_round_rational() {
+fn round_rational() {
     assert_eq!("12", Number::from_str("12.46").unwrap().round().to_string());
     assert_eq!("13", Number::from_str("12.76").unwrap().round().to_string());
     assert_eq!("-12", Number::from_str("-12.46").unwrap().round().to_string());
@@ -44,7 +44,7 @@ fn function_round_rational() {
 }
 
 #[test]
-fn function_round_float() {
+fn round_float() {
     assert_eq!("12", Number::Float(12.46).round().to_string());
     assert_eq!("13", Number::Float(12.76).round().to_string());
     assert_eq!("-12", Number::Float(-12.46).round().to_string());
@@ -52,7 +52,7 @@ fn function_round_float() {
 }
 
 #[test]
-fn function_trunc_rational() {
+fn trunc_rational() {
     assert_eq!("12", Number::from_str("12.46").unwrap().trunc().to_string());
     assert_eq!("12", Number::from_str("12.76").unwrap().trunc().to_string());
     assert_eq!("-12", Number::from_str("-12.46").unwrap().trunc().to_string());
@@ -60,7 +60,7 @@ fn function_trunc_rational() {
 }
 
 #[test]
-fn function_trunc_float() {
+fn trunc_float() {
     assert_eq!("12", Number::Float(12.46).trunc().to_string());
     assert_eq!("12", Number::Float(12.76).trunc().to_string());
     assert_eq!("-12", Number::Float(-12.46).trunc().to_string());
@@ -68,7 +68,7 @@ fn function_trunc_float() {
 }
 
 #[test]
-fn function_fract_rational() {
+fn fract_rational() {
     assert_eq!("23/50", Number::from_str("12.46").unwrap().fract().to_string());
     assert_eq!("19/25", Number::from_str("12.76").unwrap().fract().to_string());
     assert_eq!("-23/50", Number::from_str("-12.46").unwrap().fract().to_string());
@@ -76,39 +76,39 @@ fn function_fract_rational() {
 }
 
 #[test]
-fn function_fract_float() {
+fn fract_float() {
     assert_eq!("0.75", Number::Float(12.75).fract().to_string());
     assert_eq!("-0.75", Number::Float(-12.75).fract().to_string());
 }
 
 #[test]
-fn function_abs_rational() {
+fn abs_rational() {
     assert_eq!("623/50", Number::from_str("12.46").unwrap().abs().to_string());
     assert_eq!("319/25", Number::from_str("-12.76").unwrap().abs().to_string());
 }
 
 #[test]
-fn function_abs_float() {
+fn abs_float() {
     assert_eq!("12.46", Number::Float(12.46).abs().to_string());
     assert_eq!("12.76", Number::Float(-12.76).abs().to_string());
 }
 
 #[test]
-fn function_sign_rational() {
+fn sign_rational() {
     assert_eq!("1", Number::from_str("12.46").unwrap().sign().to_string());
     assert_eq!("-1", Number::from_str("-12.76").unwrap().sign().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().sign().to_string());
 }
 
 #[test]
-fn function_sign_float() {
+fn sign_float() {
     assert_eq!("1", Number::Float(12.46).sign().to_string());
     assert_eq!("-1", Number::Float(-12.76).sign().to_string());
     assert_eq!("0", Number::Float(0.0).sign().to_string());
 }
 
 #[test]
-fn function_sqrt_rational() {
+fn sqrt_rational() {
     assert_eq!(Number::from_str("1.6").unwrap(), Number::from_str("2.56").unwrap().sqrt());
     assert_eq!(Number::zero(), Number::from_str("0.0").unwrap().sqrt());
     assert!(Number::from_str("2.56").unwrap().sqrt().is_rational());
@@ -116,7 +116,7 @@ fn function_sqrt_rational() {
 }
 
 #[test]
-fn function_sqrt_float() {
+fn sqrt_float() {
     assert_eq!("3.529872518944558", Number::from_str("12.46").unwrap().sqrt().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().sqrt().to_string());
     assert_eq!("3.529872518944558", Number::Float(12.46).sqrt().to_string());
@@ -124,7 +124,7 @@ fn function_sqrt_float() {
 }
 
 #[test]
-fn function_ln_float() {
+fn ln_float() {
     assert_eq!("2.522523513359307", Number::from_str("12.46").unwrap().ln().to_string());
     assert_eq!("0", Number::from_str("1.0").unwrap().ln().to_string());
     assert_eq!("2.522523513359307", Number::Float(12.46).ln().to_string());
@@ -132,7 +132,7 @@ fn function_ln_float() {
 }
 
 #[test]
-fn function_log_float() {
+fn log_float() {
     assert_eq!("1.0955180423231508", Number::from_str("12.46").unwrap().log().to_string());
     assert_eq!("0", Number::from_str("1.0").unwrap().log().to_string());
     assert_eq!("1.0955180423231508", Number::Float(12.46).log().to_string());
@@ -140,7 +140,7 @@ fn function_log_float() {
 }
 
 #[test]
-fn function_cbrt_rational() {
+fn cbrt_rational() {
     assert_eq!(Number::from_str("1.6").unwrap(), Number::from_str("4.096").unwrap().cbrt());
     assert_eq!(Number::zero(), Number::from_str("0.0").unwrap().cbrt());
     assert!(Number::from_str("4.096").unwrap().cbrt().is_rational());
@@ -148,7 +148,7 @@ fn function_cbrt_rational() {
 }
 
 #[test]
-fn function_cbrt_float() {
+fn cbrt_float() {
     assert_eq!("2.3183162575091356", Number::from_str("12.46").unwrap().cbrt().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().cbrt().to_string());
     assert_eq!("2.3183162575091356", Number::Float(12.46).cbrt().to_string());
@@ -156,7 +156,7 @@ fn function_cbrt_float() {
 }
 
 #[test]
-fn function_sin_float() {
+fn sin_float() {
     assert_eq!("0.5167068002272901", Number::from_str("0.543").unwrap().sin().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().sin().to_string());
     assert_eq!("0.5167068002272901", Number::Float(0.543).sin().to_string());
@@ -164,7 +164,7 @@ fn function_sin_float() {
 }
 
 #[test]
-fn function_cos_float() {
+fn cos_float() {
     assert_eq!("0.8561624160163044", Number::from_str("0.543").unwrap().cos().to_string());
     assert_eq!("1", Number::from_str("0.0").unwrap().cos().to_string());
     assert_eq!("0.8561624160163044", Number::Float(0.543).cos().to_string());
@@ -172,7 +172,7 @@ fn function_cos_float() {
 }
 
 #[test]
-fn function_tan_float() {
+fn tan_float() {
     assert_eq!("0.6035149295988836", Number::from_str("0.543").unwrap().tan().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().tan().to_string());
     assert_eq!("0.6035149295988836", Number::Float(0.543).tan().to_string());
@@ -180,7 +180,7 @@ fn function_tan_float() {
 }
 
 #[test]
-fn function_asin_float() {
+fn asin_float() {
     assert_eq!("0.5740055653279919", Number::from_str("0.543").unwrap().asin().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().asin().to_string());
     assert_eq!("0.5740055653279919", Number::Float(0.543).asin().to_string());
@@ -188,7 +188,7 @@ fn function_asin_float() {
 }
 
 #[test]
-fn function_acos_float() {
+fn acos_float() {
     assert_eq!("0.9967907614669048", Number::from_str("0.543").unwrap().acos().to_string());
     assert_eq!("1.5707963267948966", Number::from_str("0.0").unwrap().acos().to_string());
     assert_eq!("0.9967907614669048", Number::Float(0.543).acos().to_string());
@@ -196,7 +196,7 @@ fn function_acos_float() {
 }
 
 #[test]
-fn function_atan_float() {
+fn atan_float() {
     assert_eq!("0.49745305021666625", Number::from_str("0.543").unwrap().atan().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().atan().to_string());
     assert_eq!("0.49745305021666625", Number::Float(0.543).atan().to_string());
@@ -204,7 +204,7 @@ fn function_atan_float() {
 }
 
 #[test]
-fn function_atan2_float() {
+fn atan2_float() {
     assert_eq!("0.49745305021666625", Number::from_str("0.543").unwrap().atan2(&Number::one()).to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().atan2(&Number::one()).to_string());
     assert_eq!("0.49745305021666625", Number::Float(0.543).atan2(&Number::one()).to_string());
@@ -212,7 +212,7 @@ fn function_atan2_float() {
 }
 
 #[test]
-fn function_sinh_float() {
+fn sinh_float() {
     assert_eq!("0.5700799925832585", Number::from_str("0.543").unwrap().sinh().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().sinh().to_string());
     assert_eq!("0.5700799925832585", Number::Float(0.543).sinh().to_string());
@@ -220,7 +220,7 @@ fn function_sinh_float() {
 }
 
 #[test]
-fn function_cosh_float() {
+fn cosh_float() {
     assert_eq!("1.1510826199468602", Number::from_str("0.543").unwrap().cosh().to_string());
     assert_eq!("1", Number::from_str("0.0").unwrap().cosh().to_string());
     assert_eq!("1.1510826199468602", Number::Float(0.543).cosh().to_string());
@@ -228,7 +228,7 @@ fn function_cosh_float() {
 }
 
 #[test]
-fn function_tanh_float() {
+fn tanh_float() {
     assert_eq!("0.49525549487453496", Number::from_str("0.543").unwrap().tanh().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().tanh().to_string());
     assert_eq!("0.49525549487453496", Number::Float(0.543).tanh().to_string());
@@ -236,7 +236,7 @@ fn function_tanh_float() {
 }
 
 #[test]
-fn function_asinh_float() {
+fn asinh_float() {
     assert_eq!("0.5193378835551655", Number::from_str("0.543").unwrap().asinh().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().asinh().to_string());
     assert_eq!("0.5193378835551655", Number::Float(0.543).asinh().to_string());
@@ -244,7 +244,7 @@ fn function_asinh_float() {
 }
 
 #[test]
-fn function_acosh_float() {
+fn acosh_float() {
     assert_eq!("0.999931383282944", Number::from_str("1.543").unwrap().acosh().to_string());
     assert_eq!("0", Number::from_str("1.0").unwrap().acosh().to_string());
     assert_eq!("0.999931383282944", Number::Float(1.543).acosh().to_string());
@@ -252,7 +252,7 @@ fn function_acosh_float() {
 }
 
 #[test]
-fn function_atanh_float() {
+fn atanh_float() {
     assert_eq!("0.6084002307344781", Number::from_str("0.543").unwrap().atanh().to_string());
     assert_eq!("0", Number::from_str("0.0").unwrap().atanh().to_string());
     assert_eq!("0.6084002307344781", Number::Float(0.543).atanh().to_string());

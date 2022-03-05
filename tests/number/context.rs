@@ -4,21 +4,21 @@ use std::str::FromStr;
 use matheval::{NumberContext, Context, Number};
 
 #[test]
-fn context_has_pi() {
+fn has_pi() {
     let cnxt = NumberContext::new();
     let val = cnxt.get_variable("pi").expect("Context doesn't contain pi");
     assert_eq!(Number::Float(3.1415926535897932384626433832795), val);
 }
 
 #[test]
-fn context_has_e() {
+fn has_e() {
     let cnxt = NumberContext::new();
     let val = cnxt.get_variable("e").expect("Context doesn't contain e");
     assert_eq!(Number::Float(2.7182818284590452353602874713527), val);
 }
 
 #[test]
-fn context_has_general_func() {
+fn has_general_func() {
     let cnxt = NumberContext::new();
     cnxt.get_function("floor").expect("Context doesn't contain floor");
     cnxt.get_function("ceil").expect("Context doesn't contain ceil");
@@ -34,7 +34,7 @@ fn context_has_general_func() {
 }
 
 #[test]
-fn context_has_trig_func() {
+fn has_trig_func() {
     let cnxt = NumberContext::new();
     cnxt.get_function("sin").expect("Context doesn't contain sin");
     cnxt.get_function("cos").expect("Context doesn't contain cos");
@@ -52,7 +52,7 @@ fn context_has_trig_func() {
 }
 
 #[test]
-fn context_set_variable() {
+fn set_variable() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("12").expect("Failed parsing number");
     cnxt.set_variable("a1", num.clone());
@@ -61,7 +61,7 @@ fn context_set_variable() {
 }
 
 #[test]
-fn context_overwrite_variable() {
+fn overwrite_variable() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("12").expect("Failed parsing number");
     cnxt.set_variable("a1", num.clone());
@@ -72,7 +72,7 @@ fn context_overwrite_variable() {
 }
 
 #[test]
-fn context_overwrite_buildin_variable() {
+fn overwrite_buildin_variable() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("3.14").expect("Failed parsing number");
     cnxt.set_variable("pi", num.clone());
@@ -81,7 +81,7 @@ fn context_overwrite_buildin_variable() {
 }
 
 #[test]
-fn context_set_function() {
+fn set_function() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("42").expect("Failed parsing number");
     let func_num = num.clone();
@@ -93,7 +93,7 @@ fn context_set_function() {
 }
 
 #[test]
-fn context_overwrite_function() {
+fn overwrite_function() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("12").expect("Failed parsing number");
     let func_num = num.clone();
@@ -109,7 +109,7 @@ fn context_overwrite_function() {
 }
 
 #[test]
-fn context_overwrite_buildin_function() {
+fn overwrite_buildin_function() {
     let mut cnxt = NumberContext::new();
     let num = Number::from_str("42").expect("Failed parsing number");
     let func_num = num.clone();
@@ -121,13 +121,13 @@ fn context_overwrite_buildin_function() {
 }
 
 #[test]
-fn context_unknown_variable() {
+fn unknown_variable() {
     let cnxt = NumberContext::new();
     assert_eq!(None, cnxt.get_variable("some_unknown_variable"));
 }
 
 #[test]
-fn context_unknown_function() {
+fn unknown_function() {
     let cnxt = NumberContext::new();
     assert!(cnxt.get_function("some_unknown_function").is_none());
 }

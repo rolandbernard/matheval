@@ -2,41 +2,41 @@
 use matheval::Expr;
 
 #[test]
-fn parse_simple_integer_literal() {
+fn simple_integer_literal() {
     let parsed = Expr::parse("98765432109876543210").expect("Failed to parse simple integer literal");
     assert_eq!(Expr::Literal("98765432109876543210".to_owned()), parsed);
 }
 
 #[test]
-fn parse_long_integer_literal() {
+fn long_integer_literal() {
     let parsed = Expr::parse("1606938044258990275541962092341162602522202993782792835301376")
         .expect("Failed to parse long integer literal");
     assert_eq!(Expr::Literal("1606938044258990275541962092341162602522202993782792835301376".to_owned()), parsed);
 }
 
 #[test]
-fn parse_binary_integer_literal() {
+fn binary_integer_literal() {
     let parsed = Expr::parse("0b1010")
         .expect("Failed to parse binary integer literal");
     assert_eq!(Expr::Literal("0b1010".to_owned()), parsed);
 }
 
 #[test]
-fn parse_octal_integer_literal() {
+fn octal_integer_literal() {
     let parsed = Expr::parse("0o7654321076543210")
         .expect("Failed to parse octal integer literal");
     assert_eq!(Expr::Literal("0o7654321076543210".to_owned()), parsed);
 }
 
 #[test]
-fn parse_hex_integer_literal() {
+fn hex_integer_literal() {
     let parsed = Expr::parse("0xfedcba9876543210fedcba9876543210")
         .expect("Failed to parse hex integer literal");
     assert_eq!(Expr::Literal("0xfedcba9876543210fedcba9876543210".to_owned()), parsed);
 }
 
 #[test]
-fn parse_simple_nonint_literal() {
+fn simple_nonint_literal() {
     let parsed = Expr::parse("9876543210.0123456789")
         .expect("Failed to parse simple non-integer literal");
     assert_eq!(Expr::Literal("9876543210.0123456789".to_owned()), parsed);
@@ -45,7 +45,7 @@ fn parse_simple_nonint_literal() {
 }
 
 #[test]
-fn parse_binary_nonint_literal() {
+fn binary_nonint_literal() {
     let parsed = Expr::parse("0b1010.0101")
         .expect("Failed to parse binary non-integer literal");
     assert_eq!(Expr::Literal("0b1010.0101".to_owned()), parsed);
@@ -53,7 +53,7 @@ fn parse_binary_nonint_literal() {
 }
 
 #[test]
-fn parse_octal_nonint_literal() {
+fn octal_nonint_literal() {
     let parsed = Expr::parse("0o76543210.01234567")
         .expect("Failed to parse octal non-integer literal");
     assert_eq!(Expr::Literal("0o76543210.01234567".to_owned()), parsed);
@@ -61,7 +61,7 @@ fn parse_octal_nonint_literal() {
 }
 
 #[test]
-fn parse_hex_nonint_literal() {
+fn hex_nonint_literal() {
     let parsed = Expr::parse("0xfedcba9876543210.0123456789abcdef")
         .expect("Failed to parse hex non-integer literal");
     assert_eq!(Expr::Literal("0xfedcba9876543210.0123456789abcdef".to_owned()), parsed);
@@ -69,7 +69,7 @@ fn parse_hex_nonint_literal() {
 }
 
 #[test]
-fn parse_simple_exponent_literal() {
+fn simple_exponent_literal() {
     let parsed = Expr::parse("9876543210.0123456789e-0123456789")
         .expect("Failed to parse simple non-integer literal");
     assert_eq!(Expr::Literal("9876543210.0123456789e-0123456789".to_owned()), parsed);
@@ -91,7 +91,7 @@ fn parse_simple_exponent_literal() {
 }
 
 #[test]
-fn parse_variable() {
+fn variable() {
     let parsed = Expr::parse("abcxyz").expect("Failed to parse variable");
     assert_eq!(Expr::Variable("abcxyz".to_owned()), parsed);
     let parsed = Expr::parse("__abc__xyz").expect("Failed to parse variable");
@@ -103,7 +103,7 @@ fn parse_variable() {
 }
 
 #[test]
-fn parse_simple_add() {
+fn simple_add() {
     let parsed = Expr::parse("a1 + a2").expect("Failed to parse simple add");
     assert_eq!(Expr::Add(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -112,7 +112,7 @@ fn parse_simple_add() {
 }
 
 #[test]
-fn parse_simple_sub() {
+fn simple_sub() {
     let parsed = Expr::parse("a1 - a2").expect("Failed to parse simple sub");
     assert_eq!(Expr::Sub(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -121,7 +121,7 @@ fn parse_simple_sub() {
 }
 
 #[test]
-fn parse_mixed_add_sub() {
+fn mixed_add_sub() {
     let parsed = Expr::parse("a1 + a2 - a3 + a4").expect("Failed to parse mixed add/sub");
     assert_eq!(Expr::Add(
         Box::new(Expr::Sub(
@@ -136,7 +136,7 @@ fn parse_mixed_add_sub() {
 }
 
 #[test]
-fn parse_simple_mul() {
+fn simple_mul() {
     let parsed = Expr::parse("a1 * a2").expect("Failed to parse simple mul");
     assert_eq!(Expr::Mul(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -145,7 +145,7 @@ fn parse_simple_mul() {
 }
 
 #[test]
-fn parse_implicit_mul() {
+fn implicit_mul() {
     let parsed = Expr::parse("12a1").expect("Failed to parse implicit mul");
     assert_eq!(Expr::Mul(
         Box::new(Expr::Literal("12".to_owned())),
@@ -167,7 +167,7 @@ fn parse_implicit_mul() {
 }
 
 #[test]
-fn parse_simple_div() {
+fn simple_div() {
     let parsed = Expr::parse("a1 / a2").expect("Failed to parse simple div");
     assert_eq!(Expr::Div(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -176,7 +176,7 @@ fn parse_simple_div() {
 }
 
 #[test]
-fn parse_mixed_mul_div() {
+fn mixed_mul_div() {
     let parsed = Expr::parse("a1 * a2 / a3 * a4").expect("Failed to parse mixed mul/div");
     assert_eq!(Expr::Mul(
         Box::new(Expr::Div(
@@ -191,7 +191,7 @@ fn parse_mixed_mul_div() {
 }
 
 #[test]
-fn parse_simple_pow() {
+fn simple_pow() {
     let parsed = Expr::parse("a1 ^ a2").expect("Failed to parse simple pow");
     assert_eq!(Expr::Pow(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -200,7 +200,7 @@ fn parse_simple_pow() {
 }
 
 #[test]
-fn parse_mixed_pow() {
+fn mixed_pow() {
     let parsed = Expr::parse("a1 ^ a2 ^ a3 ^ a4").expect("Failed to parse mixed pow");
     assert_eq!(Expr::Pow(
         Box::new(Expr::Variable("a1".to_owned())),
@@ -215,7 +215,7 @@ fn parse_mixed_pow() {
 }
 
 #[test]
-fn parse_simple_neg() {
+fn simple_neg() {
     let parsed = Expr::parse("--a1").expect("Failed to parse simple neg");
     assert_eq!(Expr::Neg(Box::new(Expr::Neg(
         Box::new(Expr::Variable("a1".to_owned()))
@@ -223,13 +223,13 @@ fn parse_simple_neg() {
 }
 
 #[test]
-fn parse_simple_function() {
+fn simple_function() {
     let parsed = Expr::parse("func(a1)").expect("Failed to parse simple function");
     assert_eq!(Expr::Function("func".to_owned(), vec![Expr::Variable("a1".to_owned())]), parsed);
 }
 
 #[test]
-fn parse_multi_variable_function() {
+fn multi_variable_function() {
     let parsed = Expr::parse("func(a1, a2, a3, a4, a5)")
         .expect("Failed to parse multi-variable function");
     assert_eq!(Expr::Function("func".to_owned(), vec![
@@ -242,7 +242,7 @@ fn parse_multi_variable_function() {
 }
 
 #[test]
-fn parse_nested_function() {
+fn nested_function() {
     let parsed = Expr::parse("func1(a1, func2(func3(a2), func4(a3, a4), a5))")
         .expect("Failed to parse nested function");
     assert_eq!(Expr::Function("func1".to_owned(), vec![
@@ -261,7 +261,7 @@ fn parse_nested_function() {
 }
 
 #[test]
-fn parse_precedence_add_mul() {
+fn precedence_add_mul() {
     let parsed = Expr::parse("a1 * a2 + a3 / a4 - a5 * a6 + a7 / a8")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Add(
@@ -289,7 +289,7 @@ fn parse_precedence_add_mul() {
 }
 
 #[test]
-fn parse_precedence_mul_pow() {
+fn precedence_mul_pow() {
     let parsed = Expr::parse("a1 ^ a2 * a3 ^ a4 / a5 ^ a6 * a7 ^ a8")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Mul(
@@ -317,7 +317,7 @@ fn parse_precedence_mul_pow() {
 }
 
 #[test]
-fn parse_precedence_neg_pow() {
+fn precedence_neg_pow() {
     let parsed = Expr::parse("- a1 ^ - a2 ^ a3 ^ - a4")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Pow(
@@ -333,7 +333,7 @@ fn parse_precedence_neg_pow() {
 }
 
 #[test]
-fn parse_precedence_parens() {
+fn precedence_parens() {
     let parsed = Expr::parse("a1 * (((a2 + a3) / (a4 - a5) * (a6 + a7)) / a8)")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Mul(
@@ -361,7 +361,7 @@ fn parse_precedence_parens() {
 }
 
 #[test]
-fn parse_precedence_add_pow() {
+fn precedence_add_pow() {
     let parsed = Expr::parse("a1 ^ a2 + a3 ^ a4 - a5 ^ a6 + a7 ^ a8")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Add(
@@ -389,7 +389,7 @@ fn parse_precedence_add_pow() {
 }
 
 #[test]
-fn parse_precedence_add_mul_pow() {
+fn precedence_add_mul_pow() {
     let parsed = Expr::parse("a1 ^ a2 - a3 ^ a4 / a5 ^ a6 * a7 ^ a8")
         .expect("Failed to parse expression");
     assert_eq!(Expr::Sub(
@@ -417,7 +417,7 @@ fn parse_precedence_add_mul_pow() {
 }
 
 #[test]
-fn parse_error() {
+fn error() {
     assert!(Expr::parse("").is_err(), "Empty expressions are illegal");
     assert!(Expr::parse("+").is_err(), "Expected value after unary '+'");
     assert!(Expr::parse("-").is_err(), "Expected value after unary '-'");

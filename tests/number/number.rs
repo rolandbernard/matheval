@@ -6,7 +6,7 @@ use num::*;
 use matheval::Number;
 
 #[test]
-fn number_from_str_integer() {
+fn from_str_integer() {
     let num = Number::from_str("123456789").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(BigInt::from_i32(123456789).unwrap(), BigInt::one()));
     assert_eq!(exp, num);
@@ -16,7 +16,7 @@ fn number_from_str_integer() {
 }
 
 #[test]
-fn number_from_str_binary_integer() {
+fn from_str_binary_integer() {
     let num = Number::from_str("0b1010111100").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(BigInt::from_i32(700).unwrap(), BigInt::one()));
     assert_eq!(exp, num);
@@ -26,7 +26,7 @@ fn number_from_str_binary_integer() {
 }
 
 #[test]
-fn number_from_str_octal_integer() {
+fn from_str_octal_integer() {
     let num = Number::from_str("0o75421603").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(BigInt::from_i32(16130947).unwrap(), BigInt::one()));
     assert_eq!(exp, num);
@@ -36,7 +36,7 @@ fn number_from_str_octal_integer() {
 }
 
 #[test]
-fn number_from_str_hex_integer() {
+fn from_str_hex_integer() {
     let num = Number::from_str("0xfea78").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(BigInt::from_i32(1043064).unwrap(), BigInt::one()));
     assert_eq!(exp, num);
@@ -46,7 +46,7 @@ fn number_from_str_hex_integer() {
 }
 
 #[test]
-fn number_from_str_nonint() {
+fn from_str_nonint() {
     let num = Number::from_str("1234.56789").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(
         BigInt::from_i32(123456789).unwrap(),
@@ -62,7 +62,7 @@ fn number_from_str_nonint() {
 }
 
 #[test]
-fn number_from_str_binary_nonint() {
+fn from_str_binary_nonint() {
     let num = Number::from_str("0b1001.1").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(
         BigInt::from_i32(19).unwrap(),
@@ -72,7 +72,7 @@ fn number_from_str_binary_nonint() {
 }
 
 #[test]
-fn number_from_str_octal_nonint() {
+fn from_str_octal_nonint() {
     let num = Number::from_str("0o740.2").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(
         BigInt::from_i32(1921).unwrap(),
@@ -82,7 +82,7 @@ fn number_from_str_octal_nonint() {
 }
 
 #[test]
-fn number_from_str_hex_nonint() {
+fn from_str_hex_nonint() {
     let num = Number::from_str("0xa4f.f").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(
         BigInt::from_i32(42239).unwrap(),
@@ -92,7 +92,7 @@ fn number_from_str_hex_nonint() {
 }
 
 #[test]
-fn number_from_str_exponent() {
+fn from_str_exponent() {
     let num = Number::from_str("12.3452e2").expect("Failed parsing number");
     let exp = Number::Rational(BigRational::new(
         BigInt::from_i32(30863).unwrap(),
@@ -126,7 +126,7 @@ fn number_from_str_exponent() {
 }
 
 #[test]
-fn number_from_str_error() {
+fn from_str_error() {
     assert!(Number::from_str("").is_err(), "Empty literals are illegal");
     assert!(Number::from_str("5.5.5").is_err(), "Two '.' characters");
     assert!(Number::from_str(".42").is_err(), "Missing integer part");
@@ -159,55 +159,55 @@ fn number_from_str_error() {
 }
 
 #[test]
-fn number_to_string_integer() {
+fn to_string_integer() {
     let num = Number::from_str("004200").expect("Failed parsing number");
     assert_eq!("4200", num.to_string());
 }
 
 #[test]
-fn number_to_string_fraction() {
+fn to_string_fraction() {
     let num = Number::from_str("004.200").expect("Failed parsing number");
     assert_eq!("21/5", num.to_string());
 }
 
 #[test]
-fn number_to_string_float() {
+fn to_string_float() {
     let num = Number::Float(12.3456789);
     assert_eq!("12.3456789", num.to_string());
 }
 
 #[test]
-fn number_to_f64_integer() {
+fn to_f64_integer() {
     let num = Number::from_str("004200").expect("Failed parsing number");
     assert_eq!(4200.0, num.to_f64());
 }
 
 #[test]
-fn number_to_f64_fraction() {
+fn to_f64_fraction() {
     let num = Number::from_str("004.200").expect("Failed parsing number");
     assert_eq!(4.2, num.to_f64());
 }
 
 #[test]
-fn number_to_f64_float() {
+fn to_f64_float() {
     let num = Number::Float(12.3456789);
     assert_eq!(12.3456789, num.to_f64());
 }
 
 #[test]
-fn number_is_integer_integer() {
+fn is_integer_integer() {
     let num = Number::from_str("004200").expect("Failed parsing number");
     assert!(num.is_integer());
 }
 
 #[test]
-fn number_is_integer_fraction() {
+fn is_integer_fraction() {
     let num = Number::from_str("004.200").expect("Failed parsing number");
     assert!(!num.is_integer());
 }
 
 #[test]
-fn number_is_integer_float() {
+fn is_integer_float() {
     let num = Number::Float(12.3456789);
     assert!(!num.is_integer());
     let num = Number::Float(123456789.0);
@@ -215,7 +215,7 @@ fn number_is_integer_float() {
 }
 
 #[test]
-fn number_is_zero_rational() {
+fn is_zero_rational() {
     let num = Number::from_str("0.02e-100").expect("Failed parsing number");
     assert!(!num.is_zero());
     let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
@@ -225,7 +225,7 @@ fn number_is_zero_rational() {
 }
 
 #[test]
-fn number_is_zero_float() {
+fn is_zero_float() {
     let num = Number::Float(12.3456789);
     assert!(!num.is_zero());
     let num = Number::Float(-12.3456789);
@@ -241,7 +241,7 @@ fn number_is_zero_float() {
 }
 
 #[test]
-fn number_is_positive_rational() {
+fn is_positive_rational() {
     let num = Number::from_str("0.02e-100").expect("Failed parsing number");
     assert!(num.is_positive());
     let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
@@ -251,7 +251,7 @@ fn number_is_positive_rational() {
 }
 
 #[test]
-fn number_is_positive_float() {
+fn is_positive_float() {
     let num = Number::Float(12.3456789);
     assert!(num.is_positive());
     let num = Number::Float(f64::INFINITY);
@@ -267,7 +267,7 @@ fn number_is_positive_float() {
 }
 
 #[test]
-fn number_is_negative_rational() {
+fn is_negative_rational() {
     let num = Number::from_str("0.02e-100").expect("Failed parsing number");
     assert!(!num.is_negative());
     let num = Number::from_str("-0.02e-100").expect("Failed parsing number");
@@ -277,7 +277,7 @@ fn number_is_negative_rational() {
 }
 
 #[test]
-fn number_is_negative_float() {
+fn is_negative_float() {
     let num = Number::Float(12.3456789);
     assert!(!num.is_negative());
     let num = Number::Float(f64::INFINITY);
@@ -293,7 +293,7 @@ fn number_is_negative_float() {
 }
 
 #[test]
-fn number_eq_rational() {
+fn eq_rational() {
     assert!(Number::Rational(BigRational::new(
         BigInt::from_i32(42239).unwrap(),
         BigInt::from_i32(16).unwrap()
@@ -325,7 +325,7 @@ fn number_eq_rational() {
 }
 
 #[test]
-fn number_eq_float() {
+fn eq_float() {
     assert!(Number::Float(42.12).eq(&Number::Float(42.12)));
     assert!(Number::Float(0.012e-199).eq(&Number::Float(0.12e-200)));
     assert!(Number::Float(0.12e+199).eq(&Number::Float(0.012e+200)));
@@ -341,7 +341,7 @@ fn number_eq_float() {
 }
 
 #[test]
-fn number_eq_float_rational() {
+fn eq_float_rational() {
     assert!(Number::Float(42.25).eq(&Number::from_str("42.25").expect("Failed parsing number")));
     assert!(Number::Float(-42.25).eq(&Number::from_str("-42.25").expect("Failed parsing number")));
     assert!(Number::Float(-0.0).eq(&Number::from_str("0.0").expect("Failed parsing number")));
@@ -354,7 +354,7 @@ fn number_eq_float_rational() {
 }
 
 #[test]
-fn number_ord_rational() {
+fn ord_rational() {
     assert_eq!(Number::Rational(BigRational::new(
         BigInt::from_i32(42239).unwrap(),
         BigInt::from_i32(16).unwrap()
@@ -386,7 +386,7 @@ fn number_ord_rational() {
 }
 
 #[test]
-fn number_ord_float() {
+fn ord_float() {
     assert!(Number::Float(42.12) == Number::Float(42.12));
     assert!(Number::Float(0.012e-199) == Number::Float(0.12e-200));
     assert!(Number::Float(0.12e+199) == Number::Float(0.012e+200));
@@ -401,7 +401,7 @@ fn number_ord_float() {
 }
 
 #[test]
-fn number_ord_float_rational() {
+fn ord_float_rational() {
     assert!(Number::Float(42.25) == Number::from_str("42.25").expect("Failed parsing number"));
     assert!(Number::Float(-42.25) == Number::from_str("-42.25").expect("Failed parsing number"));
     assert!(Number::Float(-0.0) == Number::from_str("0.0").expect("Failed parsing number"));
@@ -414,7 +414,7 @@ fn number_ord_float_rational() {
 }
 
 #[test]
-fn number_neg_rational() {
+fn neg_rational() {
     assert_eq!(Number::from_str("0.02e-100").unwrap().neg().unwrap(), Number::from_str("-0.02e-100").unwrap());
     assert_eq!(Number::from_str("-0.02e-100").unwrap().neg().unwrap(), Number::from_str("0.02e-100").unwrap());
     assert_eq!(Number::from_str("42.12").unwrap().neg().unwrap(), Number::from_str("-42.12").unwrap());
@@ -422,7 +422,7 @@ fn number_neg_rational() {
 }
 
 #[test]
-fn number_neg_float() {
+fn neg_float() {
     assert_eq!(Number::Float(12.3456789).neg().unwrap(), Number::Float(-12.3456789));
     assert_eq!(Number::Float(42.0).neg().unwrap(), Number::Float(-42.0));
     assert_eq!(Number::Float(-42.12).neg().unwrap(), Number::Float(42.12));
@@ -431,7 +431,7 @@ fn number_neg_float() {
 }
 
 #[test]
-fn number_add_rational() {
+fn add_rational() {
     assert_eq!(
         Number::from_str("0.02e-100").unwrap().add(
             Number::from_str("-0.02e-100").unwrap()
@@ -459,7 +459,7 @@ fn number_add_rational() {
 }
 
 #[test]
-fn number_add_float() {
+fn add_float() {
     assert_eq!(
         Number::Float(12.3456789).add(
             Number::Float(-12.3456789)
@@ -493,7 +493,7 @@ fn number_add_float() {
 }
 
 #[test]
-fn number_sub_rational() {
+fn sub_rational() {
     assert_eq!(
         Number::from_str("0.02e-100").unwrap().sub(
             Number::from_str("0.02e-100").unwrap()
@@ -521,7 +521,7 @@ fn number_sub_rational() {
 }
 
 #[test]
-fn number_sub_float() {
+fn sub_float() {
     assert_eq!(
         Number::Float(12.3456789).sub(
             Number::Float(12.3456789)
@@ -555,7 +555,7 @@ fn number_sub_float() {
 }
 
 #[test]
-fn number_mul_rational() {
+fn mul_rational() {
     assert_eq!(
         Number::from_str("0.02e-100").unwrap().mul(
             Number::from_str("5").unwrap()
@@ -583,7 +583,7 @@ fn number_mul_rational() {
 }
 
 #[test]
-fn number_mul_float() {
+fn mul_float() {
     assert_eq!(
         Number::Float(12.3456789).mul(
             Number::Float(0.0)
@@ -617,7 +617,7 @@ fn number_mul_float() {
 }
 
 #[test]
-fn number_div_rational() {
+fn div_rational() {
     assert_eq!(
         Number::from_str("42.12").unwrap().div(
             Number::from_str("42.12").unwrap()
@@ -650,7 +650,7 @@ fn number_div_rational() {
 }
 
 #[test]
-fn number_div_float() {
+fn div_float() {
     assert_eq!(
         Number::Float(0.0).div(
             Number::Float(12.42)
@@ -677,7 +677,7 @@ fn number_div_float() {
 }
 
 #[test]
-fn number_pow_rational() {
+fn pow_rational() {
     assert_eq!(
         Number::from_str("3").unwrap().pow(
             Number::from_str("16").unwrap()
@@ -709,7 +709,7 @@ fn number_pow_rational() {
 }
 
 #[test]
-fn number_pow_float() {
+fn pow_float() {
     assert_eq!(
         Number::Float(0.0).pow(
             Number::Float(12.42)

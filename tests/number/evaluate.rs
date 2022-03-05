@@ -8,7 +8,7 @@ use matheval::Number;
 use matheval::NumberContext;
 
 #[test]
-fn eval_simple_integer_literal() {
+fn simple_integer_literal() {
     let parsed = Expr::parse("98765432109876543210")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -18,7 +18,7 @@ fn eval_simple_integer_literal() {
 }
 
 #[test]
-fn eval_binary_integer_literal() {
+fn binary_integer_literal() {
     let parsed = Expr::parse("0b1001")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -28,7 +28,7 @@ fn eval_binary_integer_literal() {
 }
 
 #[test]
-fn eval_octal_integer_literal() {
+fn octal_integer_literal() {
     let parsed = Expr::parse("0o12017")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -38,7 +38,7 @@ fn eval_octal_integer_literal() {
 }
 
 #[test]
-fn eval_hex_integer_literal() {
+fn hex_integer_literal() {
     let parsed = Expr::parse("0xfa0c")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -48,7 +48,7 @@ fn eval_hex_integer_literal() {
 }
 
 #[test]
-fn eval_nonint_literal() {
+fn nonint_literal() {
     let parsed = Expr::parse("12.56")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -58,7 +58,7 @@ fn eval_nonint_literal() {
 }
 
 #[test]
-fn eval_exp_literal() {
+fn exp_literal() {
     let parsed = Expr::parse("12.56e-10")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -74,7 +74,7 @@ fn eval_exp_literal() {
 }
 
 #[test]
-fn eval_simple_add() {
+fn simple_add() {
     let parsed = Expr::parse("5 + 6e-5 + 42.5")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -84,7 +84,7 @@ fn eval_simple_add() {
 }
 
 #[test]
-fn eval_simple_sub() {
+fn simple_sub() {
     let parsed = Expr::parse("5e2 - 6 - 42.5")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -94,7 +94,7 @@ fn eval_simple_sub() {
 }
 
 #[test]
-fn eval_mixed_add_sub() {
+fn mixed_add_sub() {
     let parsed = Expr::parse("5 + 6e-5 - 42.5 + 15.7")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -104,7 +104,7 @@ fn eval_mixed_add_sub() {
 }
 
 #[test]
-fn eval_simple_mul() {
+fn simple_mul() {
     let parsed = Expr::parse("5 * 6e-5 * 42.5")
         .expect("Failed to parse simple integer literal");
     assert_eq!(
@@ -114,21 +114,21 @@ fn eval_simple_mul() {
 }
 
 #[test]
-fn eval_simple_div() {
+fn simple_div() {
     let parsed = Expr::parse("5e2 / 6 / 42.5")
         .expect("Failed to parse simple integer literal");
     assert_eq!("100/51", parsed.eval::<Number>().expect("Evaluation failed").to_string());
 }
 
 #[test]
-fn eval_mixed_mul_div() {
+fn mixed_mul_div() {
     let parsed = Expr::parse("5 / 6e-5 + 42.5 / 15")
         .expect("Failed to parse simple integer literal");
     assert_eq!("500017/6", parsed.eval::<Number>().expect("Evaluation failed").to_string());
 }
 
 #[test]
-fn eval_simple_pow() {
+fn simple_pow() {
     let parsed = Expr::parse("2 ^ 3 ^ 2")
         .expect("Failed to parse simple integer literal");
     assert_eq!("512", parsed.eval::<Number>().expect("Evaluation failed").to_string());
@@ -141,21 +141,21 @@ fn eval_simple_pow() {
 }
 
 #[test]
-fn eval_mixed_mul_div_pow() {
+fn mixed_mul_div_pow() {
     let parsed = Expr::parse("5 / 6^4 + 41^2 / 2^13")
         .expect("Failed to parse simple integer literal");
     assert_eq!("138721/663552", parsed.eval::<Number>().expect("Evaluation failed").to_string());
 }
 
 #[test]
-fn eval_mixed_parens() {
+fn mixed_parens() {
     let parsed = Expr::parse("(5 / 6)^(4 + 4)1^(2 / 2)^13")
         .expect("Failed to parse simple integer literal");
     assert_eq!("390625/1679616", parsed.eval::<Number>().expect("Evaluation failed").to_string());
 }
 
 #[test]
-fn eval_functions_general() {
+fn functions_general() {
     assert_eq!("2",
         Expr::parse("floor(20/7)").expect("Failed to parse simple integer literal")
             .eval::<Number>().expect("Evaluation failed").to_string()
@@ -239,7 +239,7 @@ fn eval_functions_general() {
 }
 
 #[test]
-fn eval_functions_trig() {
+fn functions_trig() {
     assert_eq!("0.28062939951435684",
         Expr::parse("sin(20/7)").expect("Failed to parse simple integer literal")
             .eval::<Number>().expect("Evaluation failed").to_string()
@@ -295,7 +295,7 @@ fn eval_functions_trig() {
 }
 
 #[test]
-fn eval_function_min() {
+fn function_min() {
     assert_eq!("3/4",
         Expr::parse("min(20/7, 12/4, 9/12)").expect("Failed to parse simple integer literal")
             .eval::<Number>().expect("Evaluation failed").to_string()
@@ -308,7 +308,7 @@ fn eval_function_min() {
 }
 
 #[test]
-fn eval_function_max() {
+fn function_max() {
     assert_eq!("3",
         Expr::parse("max(20/7, 12/4, 9/12)").expect("Failed to parse simple integer literal")
             .eval::<Number>().expect("Evaluation failed").to_string()
@@ -321,7 +321,7 @@ fn eval_function_max() {
 }
 
 #[test]
-fn eval_constants() {
+fn constants() {
     let parsed = Expr::parse("e")
         .expect("Failed to parse simple integer literal");
     assert_eq!("2.718281828459045", parsed.eval::<Number>().expect("Evaluation failed").to_string());
@@ -337,7 +337,7 @@ fn eval_constants() {
 }
 
 #[test]
-fn eval_context_variable() {
+fn context_variable() {
     let mut context = NumberContext::new();
     context.set_variable("x", Number::from_str("12").expect("Failed parsing number"));
     let parsed = Expr::parse("42x")
@@ -346,7 +346,7 @@ fn eval_context_variable() {
 }
 
 #[test]
-fn eval_context_function() {
+fn context_function() {
     let mut context = NumberContext::new();
     context.set_function("x", Box::new(|v|
         v[0].clone().add(Number::from_str("12").expect("Failed parsing number"))
