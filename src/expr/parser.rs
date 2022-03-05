@@ -236,10 +236,12 @@ fn parse_base(tokens: &mut ExprTokenizer) -> Result<Expr, ParseError> {
         if let Some(TokenKind::OpenBracket('(')) = tokens.peek_kind() {
             tokens.next();
             let mut args = Vec::new();
-            args.push(parse_expr(tokens)?);
-            while let Some(TokenKind::Separator(',')) = tokens.peek_kind() {
-                tokens.next();
+            if tokens.peek_kind() != Some(TokenKind::CloseBracket(')')) {
                 args.push(parse_expr(tokens)?);
+                while Some(TokenKind::Separator(',')) == tokens.peek_kind() {
+                    tokens.next();
+                    args.push(parse_expr(tokens)?);
+                }
             }
             let closing = tokens.next();
             if let Some(Token { kind: TokenKind::CloseBracket(')'), .. }) = closing {
