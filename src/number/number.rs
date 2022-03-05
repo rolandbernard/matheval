@@ -16,11 +16,23 @@ pub enum Number {
 }
 
 impl Number {
-    pub fn from_i64s(num: i64, den: i64) -> Number {
+    pub fn from_i128s(num: i128, den: i128) -> Number {
         Number::Rational(BigRational::new(
-            BigInt::from_i64(num).unwrap(),
-            BigInt::from_i64(den).unwrap()
+            BigInt::from_i128(num).unwrap(),
+            BigInt::from_i128(den).unwrap()
         ))
+    }
+
+    pub fn from_i128(num: i128) -> Number {
+        Self::from_i128s(num, 1)
+    }
+
+    pub fn from_i64s(num: i64, den: i64) -> Number {
+        Self::from_i128s(num as i128, den as i128)
+    }
+
+    pub fn from_i64(num: i64) -> Number {
+        Self::from_i64s(num, 1)
     }
 
     pub fn to_f64(&self) -> f64 {

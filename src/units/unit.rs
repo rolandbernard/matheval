@@ -44,7 +44,7 @@ impl BaseUnit {
         ]
     }
 
-    pub fn base_symbol(&self) -> &'static str {
+    pub fn symbol(&self) -> &'static str {
         match self {
             BaseUnit::Second => "s",
             BaseUnit::Meter => "m",
@@ -53,26 +53,6 @@ impl BaseUnit {
             BaseUnit::Mole => "mol",
             BaseUnit::Kelvin => "K",
             BaseUnit::Candela => "cd",
-        }
-    }
-
-    pub fn all_prefix() -> Vec<i64> {
-        vec![-24, -21, -18, -15, -12, -9, -6, -3, -2, -1, 0, 1, 2, 3, 6, 9, 12, 15, 18, 21, 24]
-    }
-
-    pub fn prefix_symbol(power: i64) -> Option<&'static str> {
-        match power {
-            -24 => Some("y"), -21 => Some("z"),
-            -18 => Some("a"), -15 => Some("f"),
-            -12 => Some("p"), -9 => Some("n"),
-            -6 => Some("u"), -3 => Some("m"),
-            -2 => Some("c"), -1 => Some("d"),
-            0 => Some(""), 1 => Some("da"),
-            2 => Some("h"), 3 => Some("k"),
-            6 => Some("M"), 9 => Some("G"),
-            12 => Some("T"), 15 => Some("P"),
-            18 => Some("E"), 21 => Some("Z"),
-            24 => Some("Y"), _ => None,
         }
     }
 }
@@ -105,7 +85,7 @@ impl ToString for Unit {
             if i != 0 {
                 ret.push(' ');
             }
-            let symbol = BaseUnit::try_from(i).unwrap().base_symbol();
+            let symbol = BaseUnit::try_from(i).unwrap().symbol();
             if v.is_positive() || v.is_integer() || !v.is_rational() {
                 ret.push_str(&format!("{}^{}", symbol, v.to_string()));
             } else {

@@ -1,9 +1,10 @@
 
-use std::{collections::HashMap, cmp::Ordering};
+use std::{collections::HashMap, cmp::Ordering, ops::*};
+use num::traits::Pow;
 
 use crate::{Context, ContextFn, EvalError, Number};
 
-use super::Quantity;
+use super::{Quantity, Unit, unit::BaseUnit};
 
 pub struct QuantityContext {
     vars: HashMap<String, Quantity>,
@@ -62,45 +63,171 @@ fn unitless_function<F: Fn(&Number) -> Number>(mut vec: Vec<Quantity>, f: F) -> 
     }
 }
 
+fn si_unit_prefix() -> Vec<(&'static str, Number)> {
+    vec![
+        ("Y", Number::from_i128(1_000_000_000_000_000_000_000_000)),
+        ("Z", Number::from_i128(1_000_000_000_000_000_000_000)),
+        ("E", Number::from_i128(1_000_000_000_000_000_000)),
+        ("P", Number::from_i128(1_000_000_000_000_000)),
+        ("T", Number::from_i128(1_000_000_000_000)),
+        ("G", Number::from_i128(1_000_000_000)),
+        ("M", Number::from_i128(1_000_000)),
+        ("k", Number::from_i128(1_000)),
+        ("h", Number::from_i128(100)),
+        ("da", Number::from_i128(10)),
+        ("", Number::from_i128(1)),
+        ("d", Number::from_i128s(1, 10)),
+        ("c", Number::from_i128s(1, 100)),
+        ("m", Number::from_i128s(1, 1_000)),
+        ("u", Number::from_i128s(1, 1_000_000)),
+        ("n", Number::from_i128s(1, 1_000_000_000)),
+        ("p", Number::from_i128s(1, 1_000_000_000_000)),
+        ("f", Number::from_i128s(1, 1_000_000_000_000_000)),
+        ("a", Number::from_i128s(1, 1_000_000_000_000_000_000)),
+        ("z", Number::from_i128s(1, 1_000_000_000_000_000_000_000)),
+        ("y", Number::from_i128s(1, 1_000_000_000_000_000_000_000_000)),
+    ]
+}
+
+fn si_derived_units() -> Vec<(&'static str, Quantity)> {
+    vec![
+        ("rad", Quantity::unitless(Number::one())),
+        ("sr", Quantity::unitless(Number::one())),
+        ("Hz", Quantity::new(Number::one(), Unit::base(BaseUnit::Second).pow(Number::neg_one()))),
+        ("N", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+        ("Pa", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::neg_one()))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+        ("J", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+        ("W", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
+        )),
+        ("C", Quantity::new(Number::one(), Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Ampere)))),
+        ("V", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
+        )),
+        ("F", Quantity::new(Number::from_i64s(1, 1000),
+            Unit::base(BaseUnit::Gram).pow(Number::neg_one())
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(4)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(2)))
+        )),
+        ("ohm", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(-2)))
+        )),
+        ("S", Quantity::new(Number::from_i64s(1, 1000),
+            Unit::base(BaseUnit::Gram).pow(Number::neg_one())
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(3)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(2)))
+        )),
+        ("Wb", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
+        )),
+        ("T", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
+        )),
+        ("H", Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+                .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(-2)))
+        )),
+        ("lm", Quantity::new(Number::one(), Unit::base(BaseUnit::Candela))),
+        ("lx", Quantity::new(Number::one(),
+            Unit::base(BaseUnit::Candela).mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
+        )),
+        ("Bq", Quantity::new(Number::one(), Unit::base(BaseUnit::Candela).pow(Number::neg_one()))),
+        ("Gy", Quantity::new(Number::one(),
+            Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+        ("Sv", Quantity::new(Number::one(),
+            Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        )),
+        ("kat", Quantity::new(Number::one(),
+            Unit::base(BaseUnit::Mole).mul(Unit::base(BaseUnit::Second).pow(Number::neg_one()))
+        )),
+    ]
+}
+
+fn add_functions_to_context(cxt: &mut QuantityContext) {
+    cxt.set_function("abs", Box::new(|v| check_length(v, 1, 1)?[0].abs().nan_to_err()));
+    cxt.set_function("sign", Box::new(|v| check_length(v, 1, 1)?[0].sign().nan_to_err()));
+    cxt.set_function("sqrt", Box::new(|v| check_length(v, 1, 1)?[0].sqrt().nan_to_err()));
+    cxt.set_function("cbrt", Box::new(|v| check_length(v, 1, 1)?[0].cbrt().nan_to_err()));
+    cxt.set_function("min", Box::new(min));
+    cxt.set_function("max", Box::new(max));
+    cxt.set_function("floor",Box::new(|v| unitless_function(v, Number::floor)));
+    cxt.set_function("ceil",Box::new(|v| unitless_function(v, Number::ceil)));
+    cxt.set_function("round", Box::new(|v| unitless_function(v, Number::round)));
+    cxt.set_function("trunc", Box::new(|v| unitless_function(v, Number::trunc)));
+    cxt.set_function("fract", Box::new(|v| unitless_function(v, Number::fract)));
+    cxt.set_function("ln", Box::new(|v| unitless_function(v, Number::ln)));
+    cxt.set_function("log", Box::new(|v| unitless_function(v, Number::log)));
+    cxt.set_function("sin", Box::new(|v| unitless_function(v, Number::sin)));
+    cxt.set_function("cos", Box::new(|v| unitless_function(v, Number::cos)));
+    cxt.set_function("tan", Box::new(|v| unitless_function(v, Number::tan)));
+    cxt.set_function("asin", Box::new(|v| unitless_function(v, Number::asin)));
+    cxt.set_function("acos", Box::new(|v| unitless_function(v, Number::acos)));
+    cxt.set_function("atan", Box::new(|v| unitless_function(v, Number::atan)));
+    cxt.set_function("atan2", Box::new(|mut v| {
+        v = check_length(v, 2, 2)?;
+        if v[0].is_unitless() && v[1].is_unitless() {
+            let num = v[0].coefficient().atan2(v[1].coefficient());
+            return num.nan_to_err().map(|x| Quantity::unitless(x));
+        } else {
+            return Err(EvalError::NotSupported("Function can only be applied to unitless quantity".to_owned()));
+        }
+    }));
+    cxt.set_function("sinh", Box::new(|v| unitless_function(v, Number::sinh)));
+    cxt.set_function("cosh", Box::new(|v| unitless_function(v, Number::cosh)));
+    cxt.set_function("tanh", Box::new(|v| unitless_function(v, Number::tanh)));
+    cxt.set_function("asinh", Box::new(|v| unitless_function(v, Number::asinh)));
+    cxt.set_function("acosh", Box::new(|v| unitless_function(v, Number::acosh)));
+    cxt.set_function("atanh", Box::new(|v| unitless_function(v, Number::atanh)));
+}
+
 impl QuantityContext {
     pub fn new() -> QuantityContext {
         let mut res = QuantityContext { vars: HashMap::new(), funcs: HashMap::new() };
         res.set_variable("pi", Quantity::pi());
         res.set_variable("e", Quantity::e());
-        res.set_function("abs", Box::new(|v| check_length(v, 1, 1)?[0].abs().nan_to_err()));
-        res.set_function("sign", Box::new(|v| check_length(v, 1, 1)?[0].sign().nan_to_err()));
-        res.set_function("sqrt", Box::new(|v| check_length(v, 1, 1)?[0].sqrt().nan_to_err()));
-        res.set_function("cbrt", Box::new(|v| check_length(v, 1, 1)?[0].cbrt().nan_to_err()));
-        res.set_function("min", Box::new(min));
-        res.set_function("max", Box::new(max));
-        res.set_function("floor",Box::new(|v| unitless_function(v, Number::floor)));
-        res.set_function("ceil",Box::new(|v| unitless_function(v, Number::ceil)));
-        res.set_function("round", Box::new(|v| unitless_function(v, Number::round)));
-        res.set_function("trunc", Box::new(|v| unitless_function(v, Number::trunc)));
-        res.set_function("fract", Box::new(|v| unitless_function(v, Number::fract)));
-        res.set_function("ln", Box::new(|v| unitless_function(v, Number::ln)));
-        res.set_function("log", Box::new(|v| unitless_function(v, Number::log)));
-        res.set_function("sin", Box::new(|v| unitless_function(v, Number::sin)));
-        res.set_function("cos", Box::new(|v| unitless_function(v, Number::cos)));
-        res.set_function("tan", Box::new(|v| unitless_function(v, Number::tan)));
-        res.set_function("asin", Box::new(|v| unitless_function(v, Number::asin)));
-        res.set_function("acos", Box::new(|v| unitless_function(v, Number::acos)));
-        res.set_function("atan", Box::new(|v| unitless_function(v, Number::atan)));
-        res.set_function("atan2", Box::new(|mut v| {
-            v = check_length(v, 2, 2)?;
-            if v[0].is_unitless() && v[1].is_unitless() {
-                let num = v[0].coefficient().atan2(v[1].coefficient());
-                return num.nan_to_err().map(|x| Quantity::unitless(x));
-            } else {
-                return Err(EvalError::NotSupported("Function can only be applied to unitless quantity".to_owned()));
+        add_functions_to_context(&mut res);
+        for (pr_symbol, pr) in si_unit_prefix() {
+            for base in BaseUnit::all() {
+                let symbol = format!("{}{}", pr_symbol, base.symbol());
+                res.set_variable(&symbol, Quantity::new(pr.clone(), Unit::base(base)));
             }
-        }));
-        res.set_function("sinh", Box::new(|v| unitless_function(v, Number::sinh)));
-        res.set_function("cosh", Box::new(|v| unitless_function(v, Number::cosh)));
-        res.set_function("tanh", Box::new(|v| unitless_function(v, Number::tanh)));
-        res.set_function("asinh", Box::new(|v| unitless_function(v, Number::asinh)));
-        res.set_function("acosh", Box::new(|v| unitless_function(v, Number::acosh)));
-        res.set_function("atanh", Box::new(|v| unitless_function(v, Number::atanh)));
+            for (symb, unit) in si_derived_units() {
+                let symbol = format!("{}{}", pr_symbol, symb);
+                res.set_variable(&symbol, Quantity::unitless(pr.clone()).mul(unit).unwrap());
+            }
+        }
         return res;
     }
 }
