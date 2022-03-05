@@ -71,6 +71,15 @@ impl Number {
             Number::Float(f) => f.is_zero(),
         }
     }
+
+    pub fn nan_to_err(self) -> Result<Self, EvalError> {
+        if let Self::Float(f) = self {
+            if f.is_nan() {
+                return Err(EvalError::MathError("NaN".to_owned()));
+            }
+        }
+        return Ok(self);
+    }
 }
 
 impl PartialEq for Number {

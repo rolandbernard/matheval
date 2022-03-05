@@ -22,6 +22,14 @@ impl Quantity {
         Quantity { number, unit: Unit::empty() }
     }
 
+    pub fn is_unitless(&self) -> bool {
+        self.unit.is_empty()
+    }
+
+    pub fn coefficient(&self) -> &Number {
+        &self.number
+    }
+
     pub fn pi() -> Quantity {
         Quantity::unitless(Number::pi())
     }
@@ -44,6 +52,15 @@ impl Quantity {
 
     pub fn cbrt(&self) -> Quantity {
         Quantity::new(self.number.cbrt(), self.unit.clone().pow(Number::from_i64s(1, 3)))
+    }
+
+    pub fn nan_to_err(self) -> Result<Quantity, EvalError> {
+        if let Quantity { number: Number::Float(f), .. } = self {
+            if f.is_nan() {
+                return Err(EvalError::MathError("NaN".to_owned()));
+            }
+        }
+        return Ok(self);
     }
 }
 

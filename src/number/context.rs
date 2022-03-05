@@ -55,46 +55,37 @@ fn max(mut args: Vec<Number>) -> Result<Number, EvalError> {
     return Ok(args[m].clone());
 }
 
-fn check_result(res: Number) -> Result<Number, EvalError> {
-    if let Number::Float(f) = res {
-        if f.is_nan() {
-            return Err(EvalError::MathError("NaN".to_owned()));
-        }
-    }
-    return Ok(res);
-}
-
 impl NumberContext {
     pub fn new() -> NumberContext {
         let mut res = NumberContext { vars: HashMap::new(), funcs: HashMap::new() };
         res.set_variable("pi", Number::pi());
         res.set_variable("e", Number::e());
-        res.set_function("floor",Box::new(|v| check_result(check_length(v, 1, 1)?[0].floor())));
-        res.set_function("ceil",Box::new(|v| check_result(check_length(v, 1, 1)?[0].ceil())));
-        res.set_function("round", Box::new(|v| check_result(check_length(v, 1, 1)?[0].round())));
-        res.set_function("trunc", Box::new(|v| check_result(check_length(v, 1, 1)?[0].trunc())));
-        res.set_function("fract", Box::new(|v| check_result(check_length(v, 1, 1)?[0].fract())));
-        res.set_function("abs", Box::new(|v| check_result(check_length(v, 1, 1)?[0].abs())));
-        res.set_function("sign", Box::new(|v| check_result(check_length(v, 1, 1)?[0].sign())));
-        res.set_function("sqrt", Box::new(|v| check_result(check_length(v, 1, 1)?[0].sqrt())));
-        res.set_function("ln", Box::new(|v| check_result(check_length(v, 1, 1)?[0].ln())));
-        res.set_function("log", Box::new(|v| check_result(check_length(v, 1, 1)?[0].log())));
-        res.set_function("cbrt", Box::new(|v| check_result(check_length(v, 1, 1)?[0].cbrt())));
-        res.set_function("sin", Box::new(|v| check_result(check_length(v, 1, 1)?[0].sin())));
-        res.set_function("cos", Box::new(|v| check_result(check_length(v, 1, 1)?[0].cos())));
-        res.set_function("tan", Box::new(|v| check_result(check_length(v, 1, 1)?[0].tan())));
-        res.set_function("asin", Box::new(|v| check_result(check_length(v, 1, 1)?[0].asin())));
-        res.set_function("acos", Box::new(|v| check_result(check_length(v, 1, 1)?[0].acos())));
-        res.set_function("atan", Box::new(|v| check_result(check_length(v, 1, 1)?[0].atan())));
-        res.set_function("atan2", Box::new(|mut v| check_result({
+        res.set_function("floor",Box::new(|v| check_length(v, 1, 1)?[0].floor().nan_to_err()));
+        res.set_function("ceil",Box::new(|v| check_length(v, 1, 1)?[0].ceil().nan_to_err()));
+        res.set_function("round", Box::new(|v| check_length(v, 1, 1)?[0].round().nan_to_err()));
+        res.set_function("trunc", Box::new(|v| check_length(v, 1, 1)?[0].trunc().nan_to_err()));
+        res.set_function("fract", Box::new(|v| check_length(v, 1, 1)?[0].fract().nan_to_err()));
+        res.set_function("abs", Box::new(|v| check_length(v, 1, 1)?[0].abs().nan_to_err()));
+        res.set_function("sign", Box::new(|v| check_length(v, 1, 1)?[0].sign().nan_to_err()));
+        res.set_function("sqrt", Box::new(|v| check_length(v, 1, 1)?[0].sqrt().nan_to_err()));
+        res.set_function("ln", Box::new(|v| check_length(v, 1, 1)?[0].ln().nan_to_err()));
+        res.set_function("log", Box::new(|v| check_length(v, 1, 1)?[0].log().nan_to_err()));
+        res.set_function("cbrt", Box::new(|v| check_length(v, 1, 1)?[0].cbrt().nan_to_err()));
+        res.set_function("sin", Box::new(|v| check_length(v, 1, 1)?[0].sin().nan_to_err()));
+        res.set_function("cos", Box::new(|v| check_length(v, 1, 1)?[0].cos().nan_to_err()));
+        res.set_function("tan", Box::new(|v| check_length(v, 1, 1)?[0].tan().nan_to_err()));
+        res.set_function("asin", Box::new(|v| check_length(v, 1, 1)?[0].asin().nan_to_err()));
+        res.set_function("acos", Box::new(|v| check_length(v, 1, 1)?[0].acos().nan_to_err()));
+        res.set_function("atan", Box::new(|v| check_length(v, 1, 1)?[0].atan().nan_to_err()));
+        res.set_function("atan2", Box::new(|mut v| {
             v = check_length(v, 2, 2)?; v[0].atan2(&v[1])
-        })));
-        res.set_function("sinh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].sinh())));
-        res.set_function("cosh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].cosh())));
-        res.set_function("tanh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].tanh())));
-        res.set_function("asinh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].asinh())));
-        res.set_function("acosh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].acosh())));
-        res.set_function("atanh", Box::new(|v| check_result(check_length(v, 1, 1)?[0].atanh())));
+        }.nan_to_err()));
+        res.set_function("sinh", Box::new(|v| check_length(v, 1, 1)?[0].sinh().nan_to_err()));
+        res.set_function("cosh", Box::new(|v| check_length(v, 1, 1)?[0].cosh().nan_to_err()));
+        res.set_function("tanh", Box::new(|v| check_length(v, 1, 1)?[0].tanh().nan_to_err()));
+        res.set_function("asinh", Box::new(|v| check_length(v, 1, 1)?[0].asinh().nan_to_err()));
+        res.set_function("acosh", Box::new(|v| check_length(v, 1, 1)?[0].acosh().nan_to_err()));
+        res.set_function("atanh", Box::new(|v| check_length(v, 1, 1)?[0].atanh().nan_to_err()));
         res.set_function("min", Box::new(min));
         res.set_function("max", Box::new(max));
         return res;
