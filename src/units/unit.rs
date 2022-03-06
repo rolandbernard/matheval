@@ -123,7 +123,7 @@ impl Pow<Number> for Unit {
     fn pow(self, rhs: Number) -> Self::Output {
         let mut units = Vec::with_capacity(BASE_UNIT_COUNT);
         for l in self.units {
-            units.push((l + rhs.clone()).unwrap());
+            units.push((l * rhs.clone()).unwrap());
         }
         Unit { units }
     }
