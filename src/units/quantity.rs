@@ -67,9 +67,9 @@ impl Quantity {
         return Ok(self);
     }
 
-    pub fn convert_to(&self, unit: &str) -> Option<Number> {
+    pub fn convert_to_in(&self, unit: &str, context: &QuantityContext) -> Option<Number> {
         if let Ok(expr) = Expr::parse(unit) {
-            if let Ok(res) = expr.eval::<Quantity>() {
+            if let Ok(res) = expr.eval_in(context) {
                 if res.unit == self.unit {
                     if let Ok(conv) = self.number.clone().div(res.number) {
                         return Some(conv);

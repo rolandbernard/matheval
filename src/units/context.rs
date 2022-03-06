@@ -9,7 +9,6 @@ use super::{Quantity, Unit, unit::BaseUnit};
 pub struct QuantityContext {
     vars: HashMap<String, Quantity>,
     funcs: HashMap<String, ContextFn<Quantity>>,
-    units: HashMap<String, Quantity>,
 }
 
 fn check_length(args: Vec<Quantity>, min: usize, max: usize) -> Result<Vec<Quantity>, EvalError> {
@@ -299,14 +298,14 @@ fn add_functions_to_context(cxt: &mut QuantityContext) {
 impl QuantityContext {
     pub fn new() -> QuantityContext {
         let mut res = QuantityContext {
-            vars: HashMap::new(), funcs: HashMap::new(), units: HashMap::new()
+            vars: HashMap::new(), funcs: HashMap::new()
         };
         res.set_variable("pi", Quantity::pi());
         res.set_variable("e", Quantity::e());
         add_functions_to_context(&mut res);
         for (symbs, unit) in non_si_units() {
             for symb in symbs {
-                res.units.insert(symb.to_owned(), unit.clone());
+                res.vars.insert(symb.to_owned(), unit.clone());
             }
         }
         for (pr_symbols, pr) in si_unit_prefix() {
@@ -314,7 +313,7 @@ impl QuantityContext {
                 for (symbs, unit) in si_units() {
                     for symb in symbs {
                         let symbol = format!("{}{}", pr_symbol, symb);
-                        res.units.insert(symbol, Quantity::unitless(pr.clone()).mul(unit.clone()).unwrap());
+                        res.vars.insert(symbol, Quantity::unitless(pr.clone()).mul(unit.clone()).unwrap());
                     }
                 }
             }
@@ -333,10 +332,7 @@ impl Context<Quantity> for QuantityContext {
     }
 
     fn get_variable(&self, name: &str) -> Option<Quantity> {
-        return self.vars.get(name)
-            .or_else(|| self.units.get(name)
-                .or_else(|| self.units.get(&name.to_lowercase())))
-            .and_then(|n| Some(n.clone()))
+        return self.vars.get(name).and_then(|n| Some(n.clone()))
     }
 
     fn get_function<'a>(&'a self, name: &str) -> Option<&'a ContextFn<Quantity>> {
