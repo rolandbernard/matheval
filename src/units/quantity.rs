@@ -3,7 +3,7 @@ use std::ops::*;
 use std::str::FromStr;
 use num::traits::Pow;
 
-use crate::{Number, Value, QuantityContext, EvalError};
+use crate::{Number, Value, QuantityContext, EvalError, Expr};
 
 use super::Unit;
 
@@ -28,6 +28,10 @@ impl Quantity {
 
     pub fn coefficient(&self) -> &Number {
         &self.number
+    }
+
+    pub fn unit(&self) -> &Unit {
+        &self.unit
     }
 
     pub fn pi() -> Quantity {
@@ -62,9 +66,18 @@ impl Quantity {
         }
         return Ok(self);
     }
-    
-    pub fn to_f64(&self) -> f64 {
-        self.number.to_f64()
+
+    pub fn convert_to(&self, unit: &str) -> Option<Number> {
+        if let Ok(expr) = Expr::parse(unit) {
+            if let Ok(res) = expr.eval::<Quantity>() {
+                if res.unit == self.unit {
+                    if let Ok(conv) = self.number.clone().div(res.number) {
+                        return Some(conv);
+                    }
+                }
+            }
+        }
+        return None;
     }
 }
 

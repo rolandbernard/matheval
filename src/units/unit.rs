@@ -4,17 +4,17 @@ use num::traits::Pow;
 
 use crate::Number;
 
-const BASE_UNIT_COUNT: usize = 6;
+const BASE_UNIT_COUNT: usize = 7;
 
 #[derive(Debug, Clone)]
 pub enum BaseUnit {
-    Second = 0,
+    Gram = 0,
     Meter,
-    Gram,
+    Second,
     Ampere,
     Mole,
     Kelvin,
-    Candela
+    Candela,
 }
 
 impl TryFrom<usize> for BaseUnit {
@@ -72,15 +72,21 @@ impl Unit {
 impl ToString for Unit {
     fn to_string(&self) -> String {
         let mut ret = String::new();
+        let mut first = true;
         for (i, v) in self.units.iter().enumerate() {
-            if i != 0 {
-                ret.push(' ');
-            }
-            let symbol = BaseUnit::try_from(i).unwrap().symbol();
-            if v.is_positive() || v.is_integer() || !v.is_rational() {
-                ret.push_str(&format!("{}^{}", symbol, v.to_string()));
-            } else {
-                ret.push_str(&format!("{}^({})", symbol, v.to_string()));
+            if !v.is_zero() {
+                if !first {
+                    ret.push(' ');
+                }
+                let symbol = BaseUnit::try_from(i).unwrap().symbol();
+                if v == &Number::one() {
+                    ret.push_str(symbol);
+                } else if v.is_positive() || v.is_integer() || !v.is_rational() {
+                    ret.push_str(&format!("{}^{}", symbol, v.to_string()));
+                } else {
+                    ret.push_str(&format!("{}^({})", symbol, v.to_string()));
+                }
+                first = false;
             }
         }
         return ret;
@@ -91,7 +97,7 @@ impl Mul for Unit {
     type Output = Unit;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        let mut units = Vec::new();
+        let mut units = Vec::with_capacity(BASE_UNIT_COUNT);
         for (l, r) in self.units.into_iter().zip(rhs.units.into_iter()) {
             units.push((l + r).unwrap());
         }
@@ -103,7 +109,7 @@ impl Div for Unit {
     type Output = Unit;
 
     fn div(self, rhs: Self) -> Self::Output {
-        let mut units = Vec::new();
+        let mut units = Vec::with_capacity(BASE_UNIT_COUNT);
         for (l, r) in self.units.into_iter().zip(rhs.units.into_iter()) {
             units.push((l - r).unwrap());
         }
@@ -115,7 +121,7 @@ impl Pow<Number> for Unit {
     type Output = Unit;
 
     fn pow(self, rhs: Number) -> Self::Output {
-        let mut units = Vec::new();
+        let mut units = Vec::with_capacity(BASE_UNIT_COUNT);
         for l in self.units {
             units.push((l + rhs.clone()).unwrap());
         }
