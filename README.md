@@ -57,6 +57,12 @@ if possible, otherwise fall back to using floating point numbers for functions l
 If desired, the result can be converted to an `f64` using the `matheval::Number::to_f64(&self) -> f64`
 method.
 
+For working with units, this library also defines the `matheval::Quantity` data type. This type associates to every
+number a unit, that is composed of base SI units. The default context contains a number of predefined units from the
+SI and imperial measurement systems. After computation, the `matheval::Quantity::coefficient(&self) -> matheval::Number`
+and `matheval::Quantity::unit(&self) -> matheval::Unit` methods can be used to get the numerical value and unit of the
+result respectively.
+
 ## Development
 
 The source for the library can be found in the `src/` directory. `src/lib.rs` is the entry point for

@@ -81,7 +81,7 @@ impl ToString for Unit {
                 let symbol = BaseUnit::try_from(i).unwrap().symbol();
                 if v == &Number::one() {
                     ret.push_str(symbol);
-                } else if v.is_positive() || v.is_integer() || !v.is_rational() {
+                } else if v.is_integer() || !v.is_rational() {
                     ret.push_str(&format!("{}^{}", symbol, v.to_string()));
                 } else {
                     ret.push_str(&format!("{}^({})", symbol, v.to_string()));
