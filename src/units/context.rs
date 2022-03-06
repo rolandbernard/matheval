@@ -60,198 +60,204 @@ fn unitless_function<F: Fn(&Number) -> Number>(mut vec: Vec<Quantity>, f: F) -> 
         let num = f(vec[0].coefficient());
         return num.nan_to_err().map(|x| Quantity::unitless(x));
     } else {
-        return Err(EvalError::NotSupported("Function can only be applied to unitless quantity".to_owned()));
+        return Err(EvalError::UnitError("Function can only be applied to unitless quantity".to_owned()));
     }
 }
 
-fn si_unit_prefix() -> Vec<(&'static str, Number)> {
+fn si_unit_prefix() -> Vec<(Vec<&'static str>, Number)> {
     vec![
-        ("Y", Number::from_i128(1_000_000_000_000_000_000_000_000)),
-        ("Z", Number::from_i128(1_000_000_000_000_000_000_000)),
-        ("E", Number::from_i128(1_000_000_000_000_000_000)),
-        ("P", Number::from_i128(1_000_000_000_000_000)),
-        ("T", Number::from_i128(1_000_000_000_000)),
-        ("G", Number::from_i128(1_000_000_000)),
-        ("M", Number::from_i128(1_000_000)),
-        ("k", Number::from_i128(1_000)),
-        ("h", Number::from_i128(100)),
-        ("da", Number::from_i128(10)),
-        ("", Number::from_i128(1)),
-        ("d", Number::from_i128s(1, 10)),
-        ("c", Number::from_i128s(1, 100)),
-        ("m", Number::from_i128s(1, 1_000)),
-        ("u", Number::from_i128s(1, 1_000_000)),
-        ("n", Number::from_i128s(1, 1_000_000_000)),
-        ("p", Number::from_i128s(1, 1_000_000_000_000)),
-        ("f", Number::from_i128s(1, 1_000_000_000_000_000)),
-        ("a", Number::from_i128s(1, 1_000_000_000_000_000_000)),
-        ("z", Number::from_i128s(1, 1_000_000_000_000_000_000_000)),
-        ("y", Number::from_i128s(1, 1_000_000_000_000_000_000_000_000)),
+        (vec!["Y"], Number::from_i128(1_000_000_000_000_000_000_000_000)),
+        (vec!["Z"], Number::from_i128(1_000_000_000_000_000_000_000)),
+        (vec!["E"], Number::from_i128(1_000_000_000_000_000_000)),
+        (vec!["P"], Number::from_i128(1_000_000_000_000_000)),
+        (vec!["T"], Number::from_i128(1_000_000_000_000)),
+        (vec!["G"], Number::from_i128(1_000_000_000)),
+        (vec!["M"], Number::from_i128(1_000_000)),
+        (vec!["k"], Number::from_i128(1_000)),
+        (vec!["h"], Number::from_i128(100)),
+        (vec!["da"], Number::from_i128(10)),
+        (vec![""], Number::from_i128(1)),
+        (vec!["d"], Number::from_i128s(1, 10)),
+        (vec!["c"], Number::from_i128s(1, 100)),
+        (vec!["m"], Number::from_i128s(1, 1_000)),
+        (vec!["u"], Number::from_i128s(1, 1_000_000)),
+        (vec!["n"], Number::from_i128s(1, 1_000_000_000)),
+        (vec!["p"], Number::from_i128s(1, 1_000_000_000_000)),
+        (vec!["f"], Number::from_i128s(1, 1_000_000_000_000_000)),
+        (vec!["a"], Number::from_i128s(1, 1_000_000_000_000_000_000)),
+        (vec!["z"], Number::from_i128s(1, 1_000_000_000_000_000_000_000)),
+        (vec!["y"], Number::from_i128s(1, 1_000_000_000_000_000_000_000_000)),
     ]
 }
 
-fn si_derived_units() -> Vec<(&'static str, Quantity)> {
+fn si_units() -> Vec<(Vec<&'static str>, Quantity)> {
     vec![
-        ("rad", Quantity::unitless(Number::one())),
-        ("sr", Quantity::unitless(Number::one())),
-        ("Hz", Quantity::new(Number::one(), Unit::base(BaseUnit::Second).pow(Number::neg_one()))),
-        ("N", Quantity::new(Number::from_i64(1000),
+        (vec!["s"], Quantity::new(Number::one(), Unit::base(BaseUnit::Second))),
+        (vec!["m"], Quantity::new(Number::one(), Unit::base(BaseUnit::Meter))),
+        (vec!["g"], Quantity::new(Number::one(), Unit::base(BaseUnit::Gram))),
+        (vec!["A"], Quantity::new(Number::one(), Unit::base(BaseUnit::Ampere))),
+        (vec!["mol"], Quantity::new(Number::one(), Unit::base(BaseUnit::Mole))),
+        (vec!["K"], Quantity::new(Number::one(), Unit::base(BaseUnit::Kelvin))),
+        (vec!["cd"], Quantity::new(Number::one(), Unit::base(BaseUnit::Candela))),
+        (vec!["rad"], Quantity::unitless(Number::one())),
+        (vec!["sr"], Quantity::unitless(Number::one())),
+        (vec!["Hz"], Quantity::new(Number::one(), Unit::base(BaseUnit::Second).pow(Number::neg_one()))),
+        (vec!["N"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
-        ("Pa", Quantity::new(Number::from_i64(1000),
+        (vec!["Pa"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::neg_one()))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
-        ("J", Quantity::new(Number::from_i64(1000),
+        (vec!["J"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
-        ("W", Quantity::new(Number::from_i64(1000),
+        (vec!["W"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
         )),
-        ("C", Quantity::new(Number::one(), Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Ampere)))),
-        ("V", Quantity::new(Number::from_i64(1000),
+        (vec!["C"], Quantity::new(Number::one(), Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Ampere)))),
+        (vec!["V"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
         )),
-        ("F", Quantity::new(Number::from_i64s(1, 1000),
+        (vec!["F"], Quantity::new(Number::from_i64s(1, 1000),
             Unit::base(BaseUnit::Gram).pow(Number::neg_one())
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(4)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(2)))
         )),
-        ("ohm", Quantity::new(Number::from_i64(1000),
+        (vec!["ohm"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-3)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(-2)))
         )),
-        ("S", Quantity::new(Number::from_i64s(1, 1000),
+        (vec!["S"], Quantity::new(Number::from_i64s(1, 1000),
             Unit::base(BaseUnit::Gram).pow(Number::neg_one())
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(3)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(2)))
         )),
-        ("Wb", Quantity::new(Number::from_i64(1000),
+        (vec!["Wb"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
         )),
-        ("T", Quantity::new(Number::from_i64(1000),
+        (vec!["T"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::neg_one()))
         )),
-        ("H", Quantity::new(Number::from_i64(1000),
+        (vec!["H"], Quantity::new(Number::from_i64(1000),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
                 .mul(Unit::base(BaseUnit::Ampere).pow(Number::from_i64(-2)))
         )),
-        ("lm", Quantity::new(Number::one(), Unit::base(BaseUnit::Candela))),
-        ("lx", Quantity::new(Number::one(),
+        (vec!["lm"], Quantity::new(Number::one(), Unit::base(BaseUnit::Candela))),
+        (vec!["lx"], Quantity::new(Number::one(),
             Unit::base(BaseUnit::Candela).mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(-2)))
         )),
-        ("Bq", Quantity::new(Number::one(), Unit::base(BaseUnit::Candela).pow(Number::neg_one()))),
-        ("Gy", Quantity::new(Number::one(),
+        (vec!["Bq"], Quantity::new(Number::one(), Unit::base(BaseUnit::Candela).pow(Number::neg_one()))),
+        (vec!["Gy"], Quantity::new(Number::one(),
             Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
-        ("Sv", Quantity::new(Number::one(),
+        (vec!["Sv"], Quantity::new(Number::one(),
             Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
-        ("kat", Quantity::new(Number::one(),
+        (vec!["kat"], Quantity::new(Number::one(),
             Unit::base(BaseUnit::Mole).mul(Unit::base(BaseUnit::Second).pow(Number::neg_one()))
         )),
-    ]
-}
-
-fn non_si_units() -> Vec<(&'static str, Quantity)> {
-    vec![
-        // Imperial length
-        ("twip", Quantity::new(Number::from_i128s(176_389, (10 as i128).pow(10)), Unit::base(BaseUnit::Meter))),
-        ("th", Quantity::new(Number::from_i128s(254, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter))),
-        ("Bc", Quantity::new(Number::from_i128s(84_667, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter))),
-        ("in", Quantity::new(Number::from_i128s(0_0254, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        ("hand", Quantity::new(Number::from_i128s(0_1016, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        ("ft", Quantity::new(Number::from_i128s(0_3048, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        ("yd", Quantity::new(Number::from_i128s(0_9144, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        ("ch", Quantity::new(Number::from_i128s(20_1168, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        ("fur", Quantity::new(Number::from_i128s(201_168, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
-        ("mi", Quantity::new(Number::from_i128s(1609_344, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
-        ("lea", Quantity::new(Number::from_i128s(4828_032, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
-        ("ftm", Quantity::new(Number::from_i128s(1_852, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
-        ("cable", Quantity::new(Number::from_i128s(185_2, 10), Unit::base(BaseUnit::Meter))),
-        ("nmi", Quantity::new(Number::from_i128(1852), Unit::base(BaseUnit::Meter))),
-        ("link", Quantity::new(Number::from_i128s(0_201168, (10 as i128).pow(6)), Unit::base(BaseUnit::Meter))),
-        ("rod", Quantity::new(Number::from_i128s(5_0292, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
-        // Imperial area
-        ("perch", Quantity::new(
-            Number::from_i128s(25_29285264, (10 as i128).pow(8)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
-        )),
-        ("rood", Quantity::new(
-            Number::from_i128s(1011_7141056, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
-        )),
-        ("acre", Quantity::new(
-            Number::from_i128s(4046_8564224, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
-        )),
-        ("sqmi", Quantity::new(
-            Number::from_i128s(2589988_110336, 1_000_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
-        )),
-        // Imperial volume
-        ("floz", Quantity::new(
-            Number::from_i128s(28_4130625, (10 as i128).pow(13)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
-        )),
-        ("gi", Quantity::new(
-            Number::from_i128s(142_0653125, (10 as i128).pow(13)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
-        )),
-        ("pt", Quantity::new(
-            Number::from_i128s(568_26125, (10 as i128).pow(11)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
-        )),
-        ("qt", Quantity::new(
-            Number::from_i128s(1136_5225, (10 as i128).pow(10)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
-        )),
-        ("gal", Quantity::new(
-            Number::from_i128s(4546_09, (10 as i128).pow(8)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
-        )),
-        // Imperial mass
-        ("gr", Quantity::new(Number::from_i128s(0_06479891, (10 as i128).pow(8)), Unit::base(BaseUnit::Gram))),
-        ("dr", Quantity::new(Number::from_i128s(1_7718451953125, (10 as i128).pow(13)), Unit::base(BaseUnit::Gram))),
-        ("oz", Quantity::new(Number::from_i128s(28_349523125, (10 as i128).pow(9)), Unit::base(BaseUnit::Gram))),
-        ("lb", Quantity::new(Number::from_i128s(453_59237, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
-        ("st", Quantity::new(Number::from_i128s(6350_29318, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
-        ("qr", Quantity::new(Number::from_i128s(12700_58636, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
-        ("cwt", Quantity::new(Number::from_i128s(50802_34544, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
-        ("ton", Quantity::new(Number::from_i128s(1016046_9088, (10 as i128).pow(4)), Unit::base(BaseUnit::Gram))),
-        ("slug", Quantity::new(Number::from_i128s(14593_90294, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
-        // SI accepted
-        ("min", Quantity::new(Number::from_i64(60), Unit::base(BaseUnit::Second))),
-        ("h", Quantity::new(Number::from_i64(3600), Unit::base(BaseUnit::Second))),
-        ("d", Quantity::new(Number::from_i64(86400), Unit::base(BaseUnit::Second))),
-        ("au", Quantity::new(Number::from_i64(149_597_870_700), Unit::base(BaseUnit::Meter))),
-        ("ha", Quantity::new(Number::from_i64(10_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))),
-        ("l", Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
-        ("ml", Quantity::new(Number::from_i64s(1, 1_000_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
-        ("L", Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
-        ("mL", Quantity::new(Number::from_i64s(1, 1_000_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
-        ("t", Quantity::new(Number::from_i64(1_000_000), Unit::base(BaseUnit::Gram))),
-        ("Mt", Quantity::new(Number::from_i64(1_000_000_000), Unit::base(BaseUnit::Gram))),
-        ("Da", Quantity::new(Number::from_i128s(166_053_904_020, (10 as i128).pow(35)), Unit::base(BaseUnit::Gram))),
-        ("eV", Quantity::new(Number::from_i128s(1_602_176_634, (10 as i128).pow(25)),
+        // Not SI units, but can be used with SI prefix
+        (vec!["l"], Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
+        (vec!["L"], Quantity::new(Number::from_i64s(1, 1_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3)))),
+        (vec!["t"], Quantity::new(Number::from_i64(1_000_000), Unit::base(BaseUnit::Gram))),
+        (vec!["eV"], Quantity::new(Number::from_i128s(1_602_176_634, (10 as i128).pow(25)),
             Unit::base(BaseUnit::Gram)
                 .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
                 .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
         )),
+    ]
+}
+
+fn non_si_units() -> Vec<(Vec<&'static str>, Quantity)> {
+    vec![
+        // Imperial length
+        (vec!["twip"], Quantity::new(Number::from_i128s(176_389, (10 as i128).pow(10)), Unit::base(BaseUnit::Meter))),
+        (vec!["th"], Quantity::new(Number::from_i128s(254, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter))),
+        (vec!["Bc"], Quantity::new(Number::from_i128s(84_667, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter))),
+        (vec!["in"], Quantity::new(Number::from_i128s(0_0254, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        (vec!["hand"], Quantity::new(Number::from_i128s(0_1016, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        (vec!["ft"], Quantity::new(Number::from_i128s(0_3048, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        (vec!["yd"], Quantity::new(Number::from_i128s(0_9144, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        (vec!["ch"], Quantity::new(Number::from_i128s(20_1168, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        (vec!["fur"], Quantity::new(Number::from_i128s(201_168, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
+        (vec!["mi"], Quantity::new(Number::from_i128s(1609_344, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
+        (vec!["lea"], Quantity::new(Number::from_i128s(4828_032, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
+        (vec!["ftm"], Quantity::new(Number::from_i128s(1_852, (10 as i128).pow(3)), Unit::base(BaseUnit::Meter))),
+        (vec!["cable"], Quantity::new(Number::from_i128s(185_2, 10), Unit::base(BaseUnit::Meter))),
+        (vec!["nmi"], Quantity::new(Number::from_i128(1852), Unit::base(BaseUnit::Meter))),
+        (vec!["link"], Quantity::new(Number::from_i128s(0_201168, (10 as i128).pow(6)), Unit::base(BaseUnit::Meter))),
+        (vec!["rod"], Quantity::new(Number::from_i128s(5_0292, (10 as i128).pow(4)), Unit::base(BaseUnit::Meter))),
+        // Imperial area
+        (vec!["perch"], Quantity::new(
+            Number::from_i128s(25_29285264, (10 as i128).pow(8)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
+        )),
+        (vec!["rood"], Quantity::new(
+            Number::from_i128s(1011_7141056, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
+        )),
+        (vec!["acre"], Quantity::new(
+            Number::from_i128s(4046_8564224, (10 as i128).pow(7)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
+        )),
+        (vec!["sqmi"], Quantity::new(
+            Number::from_i128s(2589988_110336, 1_000_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2))
+        )),
+        // Imperial volume
+        (vec!["floz"], Quantity::new(
+            Number::from_i128s(28_4130625, (10 as i128).pow(13)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
+        )),
+        (vec!["gi"], Quantity::new(
+            Number::from_i128s(142_0653125, (10 as i128).pow(13)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
+        )),
+        (vec!["pt"], Quantity::new(
+            Number::from_i128s(568_26125, (10 as i128).pow(11)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
+        )),
+        (vec!["qt"], Quantity::new(
+            Number::from_i128s(1136_5225, (10 as i128).pow(10)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
+        )),
+        (vec!["gal"], Quantity::new(
+            Number::from_i128s(4546_09, (10 as i128).pow(8)), Unit::base(BaseUnit::Meter).pow(Number::from_i64(3))
+        )),
+        // Imperial mass
+        (vec!["gr"], Quantity::new(Number::from_i128s(0_06479891, (10 as i128).pow(8)), Unit::base(BaseUnit::Gram))),
+        (vec!["dr"], Quantity::new(Number::from_i128s(1_7718451953125, (10 as i128).pow(13)), Unit::base(BaseUnit::Gram))),
+        (vec!["oz"], Quantity::new(Number::from_i128s(28_349523125, (10 as i128).pow(9)), Unit::base(BaseUnit::Gram))),
+        (vec!["lb"], Quantity::new(Number::from_i128s(453_59237, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
+        (vec!["st"], Quantity::new(Number::from_i128s(6350_29318, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
+        (vec!["qr"], Quantity::new(Number::from_i128s(12700_58636, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
+        (vec!["cwt"], Quantity::new(Number::from_i128s(50802_34544, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
+        (vec!["ton"], Quantity::new(Number::from_i128s(1016046_9088, (10 as i128).pow(4)), Unit::base(BaseUnit::Gram))),
+        (vec!["slug"], Quantity::new(Number::from_i128s(14593_90294, (10 as i128).pow(5)), Unit::base(BaseUnit::Gram))),
+        // SI accepted
+        (vec!["min"], Quantity::new(Number::from_i64(60), Unit::base(BaseUnit::Second))),
+        (vec!["h"], Quantity::new(Number::from_i64(3600), Unit::base(BaseUnit::Second))),
+        (vec!["d"], Quantity::new(Number::from_i64(86400), Unit::base(BaseUnit::Second))),
+        (vec!["au"], Quantity::new(Number::from_i64(149_597_870_700), Unit::base(BaseUnit::Meter))),
+        (vec!["ha"], Quantity::new(Number::from_i64(10_000), Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))),
+        (vec!["Mt"], Quantity::new(Number::from_i64(1_000_000_000), Unit::base(BaseUnit::Gram))),
+        (vec!["Da"], Quantity::new(Number::from_i128s(166_053_904_020, (10 as i128).pow(35)), Unit::base(BaseUnit::Gram))),
     ] 
 }
 
@@ -281,7 +287,7 @@ fn add_functions_to_context(cxt: &mut QuantityContext) {
             let num = v[0].coefficient().atan2(v[1].coefficient());
             return num.nan_to_err().map(|x| Quantity::unitless(x));
         } else {
-            return Err(EvalError::NotSupported("Function can only be applied to unitless quantity".to_owned()));
+            return Err(EvalError::UnitError("Function can only be applied to unitless quantity".to_owned()));
         }
     }));
     cxt.set_function("sinh", Box::new(|v| unitless_function(v, Number::sinh)));
@@ -300,17 +306,25 @@ impl QuantityContext {
         res.set_variable("pi", Quantity::pi());
         res.set_variable("e", Quantity::e());
         add_functions_to_context(&mut res);
-        for (symb, unit) in non_si_units() {
-            res.units.insert(symb.to_owned(), unit);
-        }
-        for (pr_symbol, pr) in si_unit_prefix() {
-            for (symb, unit) in si_derived_units() {
-                let symbol = format!("{}{}", pr_symbol, symb);
-                res.units.insert(symbol, Quantity::unitless(pr.clone()).mul(unit).unwrap());
+        for (symbs, unit) in non_si_units() {
+            for symb in symbs {
+                res.units.insert(symb.to_owned(), unit.clone());
+                let lower = symb.to_lowercase();
+                if !res.units.contains_key(&lower) {
+                    res.units.insert(lower, unit.clone());
+                }
             }
-            for base in BaseUnit::all() {
-                let symbol = format!("{}{}", pr_symbol, base.symbol());
-                res.units.insert(symbol, Quantity::new(pr.clone(), Unit::base(base)));
+        }
+        for (pr_symbols, pr) in si_unit_prefix() {
+            for (i, pr_symbol) in pr_symbols.into_iter().enumerate() {
+                for (symbs, unit) in si_units() {
+                    let symbol = format!("{}{}", pr_symbol, symbs[i]);
+                    let lower = symbol.to_lowercase();
+                    res.units.insert(symbol, Quantity::unitless(pr.clone()).mul(unit.clone()).unwrap());
+                    if !res.units.contains_key(&lower) {
+                        res.units.insert(lower, unit.clone());
+                    }
+                }
             }
         }
         return res;

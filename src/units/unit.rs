@@ -35,15 +35,6 @@ impl TryFrom<usize> for BaseUnit {
 }
 
 impl BaseUnit {
-    pub fn all() -> Vec<BaseUnit> {
-        vec![
-            BaseUnit::Second, BaseUnit::Meter,
-            BaseUnit::Gram, BaseUnit::Ampere,
-            BaseUnit::Mole, BaseUnit::Kelvin,
-            BaseUnit::Candela,
-        ]
-    }
-
     pub fn symbol(&self) -> &'static str {
         match self {
             BaseUnit::Second => "s",

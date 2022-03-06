@@ -62,6 +62,10 @@ impl Quantity {
         }
         return Ok(self);
     }
+    
+    pub fn to_f64(&self) -> f64 {
+        self.number.to_f64()
+    }
 }
 
 impl PartialOrd for Quantity {
@@ -76,7 +80,11 @@ impl PartialOrd for Quantity {
 
 impl ToString for Quantity {
     fn to_string(&self) -> String {
-        format!("{} {}", self.number.to_string(), self.unit.to_string())
+        if self.is_unitless() {
+            self.number.to_string()
+        } else {
+            format!("{} {}", self.number.to_string(), self.unit.to_string())
+        }
     }
 }
 
