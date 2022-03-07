@@ -308,9 +308,10 @@ impl QuantityContext {
                 res.vars.insert(symb.to_owned(), unit.clone());
             }
         }
+        let units = si_units();
         for (pr_symbols, pr) in si_unit_prefix() {
             for pr_symbol in pr_symbols {
-                for (symbs, unit) in si_units() {
+                for (symbs, unit) in &units {
                     for symb in symbs {
                         let symbol = format!("{}{}", pr_symbol, symb);
                         res.vars.insert(symbol, Quantity::unitless(pr.clone()).mul(unit.clone()).unwrap());

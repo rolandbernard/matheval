@@ -1,8 +1,8 @@
 
-use std::{ops::*, str::FromStr};
+use std::{ops::*, str::FromStr, cmp::Ordering};
 use num::traits::Pow;
 
-use matheval::{Quantity, Number, Unit, BaseUnit};
+use matheval::{Quantity, Number, Unit, BaseUnit, QuantityContext};
 
 #[test]
 fn from_str_integer() {
@@ -184,5 +184,172 @@ fn is_unitless() {
     assert!(Quantity::unitless(Number::Float(12.3456789)).is_unitless());
     assert!(Quantity::unitless(Number::from_i64(123)).is_unitless());
     assert!(Quantity::unitless(Number::from_i64s(123, 7)).is_unitless());
+}
+
+#[test]
+fn is_not_unitless() {
+    assert!(!Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)).is_unitless());
+    assert!(!Quantity::new(Number::from_i64(123), Unit::base(BaseUnit::Gram)).is_unitless());
+    assert!(!Quantity::new(Number::from_i64s(123, 7), Unit::base(BaseUnit::Gram)).is_unitless());
+}
+
+#[test]
+fn coefficient() {
+    assert_eq!(
+        &Number::Float(12.3456789),
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)).coefficient()
+    );
+    assert_eq!(
+        &Number::from_i64(123),
+        Quantity::new(Number::from_i64(123), Unit::base(BaseUnit::Gram)).coefficient()
+    );
+    assert_eq!(
+        &Number::from_i64s(123, 7),
+        Quantity::new(Number::from_i64s(123, 7), Unit::base(BaseUnit::Gram)).coefficient()
+    );
+}
+
+#[test]
+fn unit() {
+    assert_eq!(
+        &Unit::base(BaseUnit::Gram),
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)).unit()
+    );
+    assert_eq!(
+        &Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(10))),
+        Quantity::new(Number::from_i64(123),
+            Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(10)))
+        ).unit()
+    );
+    assert_eq!(
+        &Unit::empty(), Quantity::unitless(Number::from_i64s(123, 7)).unit()
+    );
+}
+
+#[test]
+fn abs() {
+    assert_eq!(
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)),
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)).abs()
+    );
+    assert_eq!(
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::Float(-12.3456789), Unit::base(BaseUnit::Second)).abs()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Ampere)),
+        Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Ampere)).abs()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Candela)),
+        Quantity::new(Number::from_i64(-12), Unit::base(BaseUnit::Candela)).abs()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(12, 7), Unit::base(BaseUnit::Kelvin)),
+        Quantity::new(Number::from_i64s(12, 7), Unit::base(BaseUnit::Kelvin)).abs()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(12, 7), Unit::base(BaseUnit::Meter)),
+        Quantity::new(Number::from_i64s(-12, 7), Unit::base(BaseUnit::Meter)).abs()
+    );
+}
+
+#[test]
+fn sign() {
+    assert_eq!(
+        Quantity::unitless(Number::one()),
+        Quantity::new(Number::Float(12.3456789), Unit::base(BaseUnit::Gram)).sign()
+    );
+    assert_eq!(
+        Quantity::unitless(Number::neg_one()),
+        Quantity::new(Number::Float(-12.3456789), Unit::base(BaseUnit::Second)).sign()
+    );
+    assert_eq!(
+        Quantity::unitless(Number::zero()),
+        Quantity::new(Number::from_i64(0), Unit::base(BaseUnit::Ampere)).sign()
+    );
+    assert_eq!(
+        Quantity::unitless(Number::one()),
+        Quantity::new(Number::from_i64s(12, 7), Unit::base(BaseUnit::Kelvin)).sign()
+    );
+    assert_eq!(
+        Quantity::unitless(Number::neg_one()),
+        Quantity::new(Number::from_i64s(-12, 7), Unit::base(BaseUnit::Meter)).sign()
+    );
+}
+
+#[test]
+fn sqrt() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram).pow(Number::from_i64s(1, 2))),
+        Quantity::new(Number::from_i64s(64, 9), Unit::base(BaseUnit::Gram)).sqrt()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(3, 8), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(9, 64), Unit::base(BaseUnit::Second).pow(Number::from_i64(2))).sqrt()
+    );
+}
+
+#[test]
+fn cbrt() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram).pow(Number::from_i64s(1, 3))),
+        Quantity::new(Number::from_i64s(512, 27), Unit::base(BaseUnit::Gram)).cbrt()
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(3, 8), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(27, 512), Unit::base(BaseUnit::Second).pow(Number::from_i64(3))).cbrt()
+    );
+}
+
+#[test]
+fn convert_to() {
+    let context = QuantityContext::new();
+    assert_eq!(
+        Some(Number::from_i64(1000)), Quantity::new(Number::one(), Unit::base(BaseUnit::Gram)).convert_to_in("mg", &context)
+    );
+    assert_eq!(
+        Some(Number::from_i64s(1, 1000)), Quantity::new(Number::one(), Unit::base(BaseUnit::Gram)).convert_to_in("kg", &context)
+    );
+    assert_eq!(
+        Some(Number::from_i128s(5000000000000000000000000000, 801088317)),
+        Quantity::new(Number::from_i64(1000),
+            Unit::base(BaseUnit::Gram)
+                .mul(Unit::base(BaseUnit::Meter).pow(Number::from_i64(2)))
+                .mul(Unit::base(BaseUnit::Second).pow(Number::from_i64(-2)))
+        ).convert_to_in("eV", &context)
+    );
+}
+
+#[test]
+fn ord() {
+    assert_eq!(None,
+        Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Second))
+        .partial_cmp(&Quantity::unitless(Number::from_i64(12)))
+    );
+    assert_eq!(Some(Ordering::Less),
+        Quantity::new(Number::from_i64(11), Unit::base(BaseUnit::Second))
+        .partial_cmp(&Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Second)))
+    );
+    assert_eq!(Some(Ordering::Equal),
+        Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Second))
+        .partial_cmp(&Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Second)))
+    );
+    assert_eq!(Some(Ordering::Greater),
+        Quantity::new(Number::from_i64(13), Unit::base(BaseUnit::Second))
+        .partial_cmp(&Quantity::new(Number::from_i64(12), Unit::base(BaseUnit::Second)))
+    );
+}
+
+#[test]
+fn neg() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)),
+        Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Gram)).neg().expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(-3, 8), Unit::base(BaseUnit::Second).pow(Number::from_i64(2))),
+        Quantity::new(Number::from_i64s(3, 8), Unit::base(BaseUnit::Second).pow(Number::from_i64(2))).neg().expect("neg failed")
+    );
 }
 
