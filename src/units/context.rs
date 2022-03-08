@@ -303,11 +303,6 @@ impl QuantityContext {
         res.set_variable("pi", Quantity::pi());
         res.set_variable("e", Quantity::e());
         add_functions_to_context(&mut res);
-        for (symbs, unit) in non_si_units() {
-            for symb in symbs {
-                res.vars.insert(symb.to_owned(), unit.clone());
-            }
-        }
         let units = si_units();
         for (pr_symbols, pr) in si_unit_prefix() {
             for pr_symbol in pr_symbols {
@@ -317,6 +312,11 @@ impl QuantityContext {
                         res.vars.insert(symbol, Quantity::unitless(pr.clone()).mul(unit.clone()).unwrap());
                     }
                 }
+            }
+        }
+        for (symbs, unit) in non_si_units() {
+            for symb in symbs {
+                res.vars.insert(symb.to_owned(), unit.clone());
             }
         }
         return res;
