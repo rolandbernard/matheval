@@ -353,3 +353,164 @@ fn neg() {
     );
 }
 
+#[test]
+fn add() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(16, 3), Unit::base(BaseUnit::Gram)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).add(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::zero(), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Second)).add(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)),
+        ).expect("neg failed")
+    );
+}
+
+#[test]
+fn add_error() {
+    assert!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).add(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)),
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).add(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))),
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Second)).add(
+            Quantity::unitless(Number::from_i64s(8, 3)),
+        ).is_err()
+    );
+}
+
+#[test]
+fn sub() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(16, 3), Unit::base(BaseUnit::Gram)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).sub(
+            Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::zero(), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)).sub(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)),
+        ).expect("neg failed")
+    );
+}
+
+#[test]
+fn sub_error() {
+    assert!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).sub(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)),
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).sub(
+            Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))),
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Second)).sub(
+            Quantity::unitless(Number::from_i64s(8, 3)),
+        ).is_err()
+    );
+}
+
+#[test]
+fn mul() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(-64, 9), Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).mul(
+            Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::unitless(Number::from_i64s(-64, 9)),
+        Quantity::unitless(Number::from_i64s(8, 3)).mul(
+            Quantity::unitless(Number::from_i64s(-8, 3)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(64, 9), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)).mul(
+            Quantity::unitless(Number::from_i64s(8, 3)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(16, 21), Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Gram))),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)).mul(
+            Quantity::new(Number::from_i64s(2, 7), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+}
+
+#[test]
+fn div() {
+    assert_eq!(
+        Quantity::unitless(Number::neg_one()),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).div(
+            Quantity::new(Number::from_i64s(-8, 3), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::one(), Unit::base(BaseUnit::Second)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)).div(
+            Quantity::unitless(Number::from_i64s(8, 3)),
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(56, 6), Unit::base(BaseUnit::Second).mul(Unit::base(BaseUnit::Gram).pow(Number::neg_one()))),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Second)).div(
+            Quantity::new(Number::from_i64s(2, 7), Unit::base(BaseUnit::Gram)),
+        ).expect("neg failed")
+    );
+}
+
+#[test]
+fn pow() {
+    assert_eq!(
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).pow(
+            Quantity::unitless(Number::one())
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(64, 9), Unit::base(BaseUnit::Gram).pow(Number::from_i64(2))),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).pow(
+            Quantity::unitless(Number::from_i64(2))
+        ).expect("neg failed")
+    );
+    assert_eq!(
+        Quantity::new(Number::from_i64s(9, 64), Unit::base(BaseUnit::Gram).pow(Number::from_i64(-2))),
+        Quantity::new(Number::from_i64s(8, 3), Unit::base(BaseUnit::Gram)).pow(
+            Quantity::unitless(Number::from_i64(-2))
+        ).expect("neg failed")
+    );
+}
+
+#[test]
+fn pow_error() {
+    assert!(
+        Quantity::unitless(Number::from_i64s(8, 3)).pow(
+            Quantity::new(Number::one(), Unit::base(BaseUnit::Second))
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::zero(), Unit::base(BaseUnit::Gram)).pow(
+            Quantity::unitless(Number::from_i64(0))
+        ).is_err()
+    );
+    assert!(
+        Quantity::new(Number::zero(), Unit::base(BaseUnit::Gram)).pow(
+            Quantity::unitless(Number::from_i64(-2))
+        ).is_err()
+    );
+}
+
