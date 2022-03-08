@@ -10,7 +10,7 @@ use super::Number;
 
 pub struct NumberContext {
     vars: HashMap<String, Number>,
-    funcs: HashMap<String, ContextFn<Number>>,
+    funcs: HashMap<String, Box<ContextFn<Number>>>,
 }
 
 fn check_length(args: Vec<Number>, min: usize, max: usize) -> Result<Vec<Number>, EvalError> {
@@ -97,7 +97,7 @@ impl Context<Number> for NumberContext {
         self.vars.insert(name.to_owned(), value);
     }
 
-    fn set_function(&mut self, name: &str, value: ContextFn<Number>) {
+    fn set_function(&mut self, name: &str, value: Box<ContextFn<Number>>) {
         self.funcs.insert(name.to_owned(), value);
     }
 
@@ -106,7 +106,7 @@ impl Context<Number> for NumberContext {
     }
 
     fn get_function<'a>(&'a self, name: &str) -> Option<&'a ContextFn<Number>> {
-        return self.funcs.get(name);
+        return self.funcs.get(name).and_then(|x| Some(x.as_ref()));
     }
 }
 

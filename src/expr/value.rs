@@ -18,12 +18,12 @@ where Self:
     fn default_context() -> Self::DefaultContext;
 }
 
-pub type ContextFn<V> = Box<dyn Fn(Vec<V>) -> Result<V, EvalError>>;
+pub type ContextFn<V> = dyn Fn(Vec<V>) -> Result<V, EvalError>;
 
 pub trait Context<V: Value> {
     fn set_variable(&mut self, name: &str, value: V);
 
-    fn set_function(&mut self, name: &str, value: ContextFn<V>);
+    fn set_function(&mut self, name: &str, value: Box<ContextFn<V>>);
 
     fn get_variable(&self, name: &str) -> Option<V>;
 
